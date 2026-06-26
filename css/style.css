@@ -18,13 +18,13 @@ body {
 
 @keyframes gentle-wave {
     0% {
-        background-position: 0% 50%;
+        background-position: 0 50%;
     }
     50% {
         background-position: 100% 50%;
     }
     100% {
-        background-position: 0% 50%;
+        background-position: 0 50%;
     }
 }
 
@@ -140,18 +140,18 @@ body.lava-music-active {
 
 /* --- Positioning rings --- */
 .blue {
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
 }
 
 .black {
     left: 160px;
-    top: 0px;
+    top: 0;
 }
 
 .red {
     left: 320px;
-    top: 0px;
+    top: 0;
 }
 
 .yellow {
