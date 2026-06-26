@@ -13,9 +13,8 @@
 
         <div class="tooltip"><i>Click</i></div>
     </div>
-    <audio id="my-audio" src="music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3" loop>
+    <audio id="my-audio"></audio>
 
-    </audio>
     <div class="rings-wrapper">
         <div class="ring blue"></div>
         <div class="ring black"></div>
@@ -29,6 +28,22 @@
         document.getElementById(`zoich`);
     const audio =
         document.getElementById(`my-audio`);
+    // =======================================================
+    const playlist = [
+        "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3",
+        "music/track2.mp3",
+        "music/track3.mp3",
+        "music/track4.mp3",
+        "music/track5.mp3"
+    ];
+
+    let currentTrackIndex = 0;
+
+    function loadTrack(index) {
+        audio.src = playlist[index];
+    }
+
+    loadTrack(currentTrackIndex);
 
     icon.addEventListener(`click`, () => {
         if (audio.paused) {
@@ -39,6 +54,15 @@
             audio.currentTime = 0;
             icon.classList.remove(`playing`);
         }
+    });
+
+    // ==========================================
+
+    audio.addEventListener(`ended`, () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+
+        loadTrack(currentTrackIndex);
+        audio.play();
     });
 </script>
 </body>
