@@ -3,7 +3,7 @@ const audio = document.getElementById('my-audio');
 const rings = document.querySelectorAll('.ring');
 
 const playlist = [
-    "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3",
+    "music/track1.mp3",
     "music/track2.mp3",
     "music/track3.mp3",
     "music/track4.mp3",
@@ -30,18 +30,25 @@ function syncLavaWithTrack() {
     }
 }
 
+// Инициализируем первый трек при загрузке страницы
 loadTrack(currentTrackIndex);
 
 // Клик по кольцам (пульт управления)
 rings.forEach((ring, index) => {
     ring.addEventListener('click', () => {
-        if (currentTrackIndex === index && !audio.paused) {
-            // Если трек уже играет — пусть продолжает качать!
-            return;
+        if (currentTrackIndex === index) {
+            if (audio.paused) {
+                // Если трек тот же, но стоял на паузе — подстрахуемся и перезагрузим src для браузера
+                loadTrack(currentTrackIndex);
+                audio.play().catch(err => console.log("Ошибка воспроизведения кольца:", err));
+            } else {
+                return; // Если уже играет, ничего не делаем
+            }
         } else {
+            // Переключение на другое кольцо
             currentTrackIndex = index;
             loadTrack(currentTrackIndex);
-            audio.play();
+            audio.play().catch(err => console.log("Ошибка воспроизведения кольца:", err));
         }
         syncLavaWithTrack();
     });
@@ -50,18 +57,29 @@ rings.forEach((ring, index) => {
 // Клик по Зойчу (Мастер-кнопка Пауза/Старт)
 icon.addEventListener('click', () => {
     if (audio.paused) {
-        audio.play();
+        // ЖЕСТКАЯ ПОДСТРАХОВКА: перед запуском обновляем src текущего трека.
+        // Это заставляет браузер понять, что запуск происходит СЕЙЧАС от клика пользователя.
+        loadTrack(currentTrackIndex);
+
+        audio.play()
+            .then(() => {
+                syncLavaWithTrack();
+            })
+            .catch(err => {
+                console.error("Браузер заблокировал Зойча:", err);
+            });
     } else {
+        // Если музыка ИГРАЕТ, Зойч сбрасывает её в ноль и останавливает
         audio.pause();
         audio.currentTime = 0;
+        syncLavaWithTrack();
     }
-    syncLavaWithTrack();
 });
 
-// Авто переключение треков
+// Автопереключение треков по окончании
 audio.addEventListener('ended', () => {
     currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
     loadTrack(currentTrackIndex);
-    audio.play();
+    audio.play().catch(err => console.log("Ошибка авто переключения:", err));
     syncLavaWithTrack();
 });
