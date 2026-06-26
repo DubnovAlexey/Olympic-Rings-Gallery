@@ -23,12 +23,15 @@
         <div class="ring green"></div>
     </div>
 </div>
+
+
 <script>
-    const icon =
-        document.getElementById(`zoich`);
-    const audio =
-        document.getElementById(`my-audio`);
-    // =======================================================
+    const icon = document.getElementById('zoich');
+    const audio = document.getElementById('my-audio');
+
+
+    const rings = document.querySelectorAll('.ring');
+
     const playlist = [
         "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3",
         "music/track2.mp3",
@@ -43,26 +46,38 @@
         audio.src = playlist[index];
     }
 
+    // ------------------------------------
+    function syncLavaWithTrack() {
+        rings.forEach(ring => ring.classList.remove('lava-active'));
+
+        if (!audio.paused) {
+            rings[currentTrackIndex].classList.add('lava-active');
+        }
+    }
+
+    // -----------------------------
     loadTrack(currentTrackIndex);
 
-    icon.addEventListener(`click`, () => {
+    icon.addEventListener('click', () => {
         if (audio.paused) {
             audio.play();
-            icon.classList.add(`playing`);
+            icon.classList.add('playing');
         } else {
             audio.pause();
             audio.currentTime = 0;
-            icon.classList.remove(`playing`);
+            icon.classList.remove('playing');
         }
+        syncLavaWithTrack();
     });
 
-    // ==========================================
-
-    audio.addEventListener(`ended`, () => {
+    audio.addEventListener('ended', () => {
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         loadTrack(currentTrackIndex);
         audio.play();
+        syncLavaWithTrack();
     });
 </script>
+
+
 </body>
 </html>
