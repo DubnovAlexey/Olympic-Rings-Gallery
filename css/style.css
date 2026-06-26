@@ -6,26 +6,52 @@
     border-radius: 10%;
 }
 
-.zoich {
+
+.zoich-wrapper {
+    position: relative;
+    display: inline-block;
     cursor: pointer;
+}
+
+
+.zoich {
     transition: transform 0.2s;
-
+    display: block;
 }
 
-.zoich:hover {
-    transform: scale(1.1);
+
+.zoich-wrapper:hover .zoich {
+    transform: scale(1.2);
 }
 
-.zoich:not(.playing):hover {
-    transform: scale(1.1);
+
+.tooltip {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    color: #4caa15;
+    font-size: 14px;
+    font-family: sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
 }
+
+
+.zoich-wrapper:hover .tooltip {
+    display: block;
+}
+
 
 @keyframes heartbeat {
     0% {
         transform: scale(1);
     }
     20% {
-        transform: scale(1.1);
+        transform: scale(1.12);
     }
     40% {
         transform: scale(1.02);
@@ -39,8 +65,7 @@
 }
 
 .zoich.playing {
-
-    animation: heartbeat 3.2s infinite ease-in-out;
+    animation: heartbeat 3.1s infinite ease-in-out;
 }
 
 .rings-wrapper {
