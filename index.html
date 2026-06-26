@@ -60,7 +60,6 @@
 
     audio.addEventListener(`ended`, () => {
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-
         loadTrack(currentTrackIndex);
         audio.play();
     });
