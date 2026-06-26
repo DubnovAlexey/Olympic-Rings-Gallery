@@ -24,20 +24,17 @@
     </div>
 </div>
 
-
 <script>
     const icon = document.getElementById('zoich');
     const audio = document.getElementById('my-audio');
-
-
     const rings = document.querySelectorAll('.ring');
 
     const playlist = [
-        "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3",
-        "music/track2.mp3",
-        "music/track3.mp3",
-        "music/track4.mp3",
-        "music/track5.mp3"
+        "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3", // Синее кольцо
+        "music/track2.mp3",                                          // Чёрное кольцо
+        "music/track3.mp3",                                          // Жёлтое кольцо
+        "music/track4.mp3",                                          // Красное кольцо
+        "music/track5.mp3"                                           // Зелёное кольцо
     ];
 
     let currentTrackIndex = 0;
@@ -46,7 +43,7 @@
         audio.src = playlist[index];
     }
 
-    // ------------------------------------
+    // Синхронизация лавы: активное горит ярко, остальные — в режиме ожидания
     function syncLavaWithTrack() {
         rings.forEach(ring => ring.classList.remove('lava-active'));
 
@@ -54,9 +51,25 @@
             rings[currentTrackIndex].classList.add('lava-active');
         }
     }
-
-    // -----------------------------
     loadTrack(currentTrackIndex);
+
+    /* --- МАГИЯ ИНТЕРАКТИВНОГО ПУЛЬТА (Клик по кольцам) --- */
+    rings.forEach((ring, index) => {
+        ring.addEventListener('click', () => {
+
+            if (currentTrackIndex === index && !audio.paused) {
+                audio.pause();
+                icon.classList.remove('playing');
+            } else {
+
+                currentTrackIndex = index;
+                loadTrack(currentTrackIndex);
+                audio.play();
+                icon.classList.add('playing');
+            }
+            syncLavaWithTrack();
+        });
+    });
 
     icon.addEventListener('click', () => {
         if (audio.paused) {
@@ -76,8 +89,8 @@
         audio.play();
         syncLavaWithTrack();
     });
-</script>
 
+</script>
 
 </body>
 </html>
