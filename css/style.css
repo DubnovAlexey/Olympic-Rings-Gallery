@@ -5,11 +5,29 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
+
     background: linear-gradient(
-            180deg,
-            #f4faf3 0%,
-            #d6edd2 100%
+            -45deg,
+            #f4faf3, #7cea69,
+            #f3f7fa, #34b0e4
     );
+
+    background-size: 400% 400%;
+    animation: gentle-wave 10s ease infinite;
+}
+
+
+@keyframes gentle-wave {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .container {
