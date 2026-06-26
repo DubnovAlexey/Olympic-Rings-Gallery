@@ -1,11 +1,9 @@
-
 body {
     margin: 0;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-
 
     background: linear-gradient(
             -45deg,
@@ -15,18 +13,27 @@ body {
 
     background-size: 400% 400%;
     animation: gentle-wave 9s ease infinite;
+    transition: box-shadow 0.5s ease;
 }
 
-
 @keyframes gentle-wave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body.lava-music-active {
+    animation: gentle-wave 25s ease infinite, body-magma-frame 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes body-magma-frame {
     0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
+        box-shadow: inset 0 0 15px rgba(255, 42, 0, 0.6),
+        inset 0 0 25px rgba(255, 106, 0, 0.3);
     }
     100% {
-        background-position: 0% 50%;
+        box-shadow: inset 0 0 25px rgba(255, 26, 0, 0.85),
+        inset 0 0 35px rgba(255, 170, 0, 0.5);
     }
 }
 
@@ -36,24 +43,33 @@ body {
     border-radius: 0;
 }
 
-
 .zoich-wrapper {
     position: relative;
     display: inline-block;
     cursor: pointer;
 }
 
-
 .zoich {
-    transition: transform 0.2s;
+    transition: transform 0.2s, filter 0.4s ease;
     display: block;
 }
-
 
 .zoich-wrapper:hover .zoich {
     transform: scale(1.2);
 }
 
+.zoich.playing {
+    animation: heartbeat 3.1s infinite ease-in-out, zoich-fire 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes zoich-fire {
+    0% {
+        filter: drop-shadow(0px 0px 12px #ff2a00) brightness(1.1);
+    }
+    100% {
+        filter: drop-shadow(0px 0px 28px #ffaa00) brightness(1.35);
+    }
+}
 
 .tooltip {
     position: absolute;
@@ -74,27 +90,12 @@ body {
     display: block;
 }
 
-
 @keyframes heartbeat {
-    0% {
-        transform: scale(1);
-    }
-    20% {
-        transform: scale(1.12);
-    }
-    40% {
-        transform: scale(1.02);
-    }
-    60% {
-        transform: scale(1.15);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.zoich.playing {
-    animation: heartbeat 3.1s infinite ease-in-out;
+    0% { transform: scale(1); }
+    20% { transform: scale(1.12); }
+    40% { transform: scale(1.02); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
 
 .rings-wrapper {
@@ -111,53 +112,29 @@ body {
     border-radius: 50%;
     border: 10px solid;
     box-sizing: border-box;
+    cursor: pointer;
+    transition: box-shadow 0.4s ease, transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.blue {
-    border-color: blue;
-    left: 0px;
-    top: 0px;
+.ring:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 69, 0, 0.6);
 }
 
-.black {
-    border-color: black;
-    left: 160px;
-    top: 0px;
-}
-
-.red {
-    border-color: red;
-    left: 320px;
-    top: 0px;
-}
-
-.yellow {
-    border-color: yellow;
-    left: 80px;
-    top: 90px;
-}
-
-
-.green {
-    border-color: green;
-    left: 240px;
-    top: 90px;
-}
+.blue { border-color: blue; left: 0px; top: 0px; }
+.black { border-color: black; left: 160px; top: 0px; }
+.red { border-color: red; left: 320px; top: 0px; }
+.yellow { border-color: yellow; left: 80px; top: 90px; }
+.green { border-color: green; left: 240px; top: 90px; }
 
 /* --- PERFECT 3D WEAVING COOKBOOK --- */
-/* (Рецепт идеального 3D-переплетения) */
-/*=====================================================================================*/
-
-/* Base style for all weave patches */
-/* (Базовый стиль для всех патчей плетения) */
 .blue::after,
 .black::before,
 .black::after,
 .red::after {
     content: '';
     position: absolute;
-    /* Strict absolute overlay */
-    /* (Строгое наложение пиксель в пиксель) */
     top: -10px;
     left: -10px;
     width: 200px;
@@ -165,52 +142,16 @@ body {
     border-radius: 50%;
     box-sizing: border-box;
     z-index: 2;
-    /* Smart micro-overlap mask (10.5px) */
-    /* Делаем рамку на 0.5px толще, чтобы */
-    /* полностью скрыть субпиксельные швы */
     border: 10.5px solid;
     border-color: inherit;
 }
 
-/* 1. Blue over Yellow (Upper crossing) */
-/* (Синее поверх желтого - верхний стык) */
-.blue::after {
-    clip-path: inset(45% 30% 25% 35%);
-}
-
-/* 2. Black over Yellow (Lower crossing) */
-/* (Черное поверх желтого - нижний стык) */
-.black::before {
-    clip-path: inset(60% 60% 5% 5%);
-}
-
-/* 3. Black over Green (Upper crossing) */
-/* (Черное поверх зеленого - верхний стык) */
-.black::after {
-    clip-path: inset(45% 30% 25% 35%);
-}
-
-/* 4. Red over Green (Lower crossing) */
-/* (Красное поверх зеленого - нижний стык) */
-.red::after {
-    clip-path: inset(60% 60% 5% 5%);
-}
-
+.blue::after { clip-path: inset(45% 30% 25% 35%); }
+.black::before { clip-path: inset(60% 60% 5% 5%); }
+.black::after { clip-path: inset(45% 30% 25% 35%); }
+.red::after { clip-path: inset(60% 60% 5% 5%); }
 
 /*=====================================================================================*/
-/* --- СИСТЕМА ЛАВОВОГО СВЕЧЕНИЯ КОЛЕЦ --- */
-
-.ring {
-    cursor: pointer;
-    transition: filter 0.4s ease, transform 0.3s ease;
-    filter: drop-shadow(2px 5px 7px rgba(220, 30, 0, 0.5));
-}
-
-.ring:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0px 0px 15px #ff4500) brightness(1.2);
-}
-
 
 .ring.lava-active {
     z-index: 10;
@@ -220,18 +161,16 @@ body {
 @keyframes volcanic-eruption {
     0% {
         transform: scale(1.02);
-        filter: drop-shadow(0px -10px 12px #ff2a00)
-        drop-shadow(10px 10px 15px #ff6a00)
-        drop-shadow(-10px 10px 15px #ffaa00)
-        brightness(1.3);
+        box-shadow: 0 0 25px #ff2a00,
+        0 0 45px #ff6a00,
+        0 0 70px #ffaa00;
+        filter: brightness(1.3);
     }
     100% {
         transform: scale(1.09);
-        filter: drop-shadow(0px -30px 30px #ff1a00)
-        drop-shadow(25px 20px 25px #ff5100)
-        drop-shadow(-25px 20px 25px #ffaa00)
-        brightness(2.0);
+        box-shadow: 0 0 45px #ff1a00,
+        0 0 85px #ff5100,
+        0 0 130px #ffaa00;
+        filter: brightness(2.0);
     }
 }
-
-/*===========================================================*/

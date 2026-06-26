@@ -10,7 +10,6 @@
 <div class="container">
     <div class="zoich-wrapper">
         <img src="img/zoich.png" id="zoich" alt="zoich" class="zoich">
-
         <div class="tooltip"><i>Click</i></div>
     </div>
     <audio id="my-audio"></audio>
@@ -30,11 +29,11 @@
     const rings = document.querySelectorAll('.ring');
 
     const playlist = [
-        "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3", // Синее кольцо
-        "music/track2.mp3",                                          // Чёрное кольцо
-        "music/track3.mp3",                                          // Жёлтое кольцо
-        "music/track4.mp3",                                          // Красное кольцо
-        "music/track5.mp3"                                           // Зелёное кольцо
+        "music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3",
+        "music/track2.mp3",
+        "music/track3.mp3",
+        "music/track4.mp3",
+        "music/track5.mp3"
     ];
 
     let currentTrackIndex = 0;
@@ -43,54 +42,55 @@
         audio.src = playlist[index];
     }
 
-    // Синхронизация лавы: активное горит ярко, остальные — в режиме ожидания
+    /* --- ЦЕНТРАЛЬНОЕ УПРАВЛЕНИЕ ВСЕЙ ЛАВОЙ НА СТРАНИЦЕ --- */
     function syncLavaWithTrack() {
         rings.forEach(ring => ring.classList.remove('lava-active'));
 
         if (!audio.paused) {
             rings[currentTrackIndex].classList.add('lava-active');
+            icon.classList.add('playing');
+            document.body.classList.add('lava-music-active');
+        } else {
+            icon.classList.remove('playing');
+            document.body.classList.remove('lava-music-active');
         }
     }
+
     loadTrack(currentTrackIndex);
 
-    /* --- МАГИЯ ИНТЕРАКТИВНОГО ПУЛЬТА (Клик по кольцам) --- */
+    // Клик по кольцам (пульт управления)
     rings.forEach((ring, index) => {
         ring.addEventListener('click', () => {
-
             if (currentTrackIndex === index && !audio.paused) {
-                audio.pause();
-                icon.classList.remove('playing');
+                // Если трек уже играет — пусть продолжает качать!
+                return;
             } else {
-
                 currentTrackIndex = index;
                 loadTrack(currentTrackIndex);
                 audio.play();
-                icon.classList.add('playing');
             }
             syncLavaWithTrack();
         });
     });
 
+    // Клик по Зойчу (Мастер-кнопка Пауза/Старт)
     icon.addEventListener('click', () => {
         if (audio.paused) {
             audio.play();
-            icon.classList.add('playing');
         } else {
             audio.pause();
             audio.currentTime = 0;
-            icon.classList.remove('playing');
         }
         syncLavaWithTrack();
     });
 
+    // Авто переключение треков
     audio.addEventListener('ended', () => {
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         loadTrack(currentTrackIndex);
         audio.play();
         syncLavaWithTrack();
     });
-
 </script>
-
 </body>
 </html>
