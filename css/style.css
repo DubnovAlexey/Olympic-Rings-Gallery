@@ -10,12 +10,13 @@ body {
     background: linear-gradient(
             -45deg,
             #f4faf3, #7cea69,
-            #f3f7fa, #34b0e4
+            #f3f7fa, #11aeef
     );
 
     background-size: 400% 400%;
-    animation: gentle-wave 10s ease infinite;
+    animation: gentle-wave 9s ease infinite;
 }
+
 
 
 @keyframes gentle-wave {
