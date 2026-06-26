@@ -76,7 +76,7 @@ icon.addEventListener('click', () => {
     }
 });
 
-// Автопереключение треков по окончании
+// Авто переключение треков по окончании
 audio.addEventListener('ended', () => {
     currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
     loadTrack(currentTrackIndex);
