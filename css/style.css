@@ -16,6 +16,33 @@
     transform: scale(1.1);
 }
 
+.zoich:not(.playing):hover {
+    transform: scale(1.1);
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    20% {
+        transform: scale(1.1);
+    }
+    40% {
+        transform: scale(1.02);
+    }
+    60% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.zoich.playing {
+
+    animation: heartbeat 3.2s infinite ease-in-out;
+}
+
 .rings-wrapper {
     position: relative;
     width: 520px;

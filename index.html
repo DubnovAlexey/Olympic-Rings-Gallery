@@ -30,9 +30,11 @@
     icon.addEventListener(`click`, () => {
         if (audio.paused) {
             audio.play();
+            icon.classList.add(`playing`);
         } else {
             audio.pause();
             audio.currentTime = 0;
+            icon.classList.remove(`playing`);
         }
     });
 </script>
