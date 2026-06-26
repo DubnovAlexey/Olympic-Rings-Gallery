@@ -9,6 +9,10 @@
 <body>
 <div class="container">
     <img src="img/zoich.png" id="zoich" alt="zoich" class="zoich">
+
+    <audio id="my-audio" src="music/Röyksopp%20&%20Robyn%20Monument%20(Music%20Video).mp3" loop>
+
+    </audio>
     <div class="rings-wrapper">
         <div class="ring blue"></div>
         <div class="ring black"></div>
@@ -17,5 +21,20 @@
         <div class="ring green"></div>
     </div>
 </div>
+<script>
+    const icon =
+        document.getElementById(`zoich`);
+    const audio =
+        document.getElementById(`my-audio`);
+
+    icon.addEventListener(`click`, () => {
+        if (audio.paused) {
+            audio.play();
+        } else {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    });
+</script>
 </body>
 </html>
