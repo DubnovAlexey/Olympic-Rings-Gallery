@@ -57,3 +57,53 @@
     top: 90px;
 }
 
+/* --- PERFECT 3D WEAVING COOKBOOK --- */
+/* (Рецепт идеального 3D-переплетения) */
+
+/* Base style for all weave patches */
+/* (Базовый стиль для всех патчей плетения) */
+.blue::after,
+.black::before,
+.black::after,
+.red::after {
+    content: '';
+    position: absolute;
+    /* Strict absolute overlay */
+    /* (Строгое наложение пиксель в пиксель) */
+    top: -10px;
+    left: -10px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    z-index: 2;
+    /* Smart micro-overlap mask (10.5px) */
+    /* Делаем рамку на 0.5px толще, чтобы */
+    /* полностью скрыть субпиксельные швы */
+    border: 10.5px solid;
+    border-color: inherit;
+}
+
+/* 1. Blue over Yellow (Upper crossing) */
+/* (Синее поверх желтого - верхний стык) */
+.blue::after {
+    clip-path: inset(45% 30% 25% 35%);
+}
+
+/* 2. Black over Yellow (Lower crossing) */
+/* (Черное поверх желтого - нижний стык) */
+.black::before {
+    clip-path: inset(60% 60% 5% 5%);
+}
+
+/* 3. Black over Green (Upper crossing) */
+/* (Черное поверх зеленого - верхний стык) */
+.black::after {
+    clip-path: inset(45% 30% 25% 35%);
+}
+
+/* 4. Red over Green (Lower crossing) */
+/* (Красное поверх зеленого - нижний стык) */
+.red::after {
+    clip-path: inset(60% 60% 5% 5%);
+}
