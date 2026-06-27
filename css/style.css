@@ -164,13 +164,13 @@ body.lava-music-active {
     top: 90px;
 }
 
-/*===================================================*/
-
+/* =================================================== */
 /* --- PERFECT 3D WEAVING COOKBOOK --- */
-.blue::after,
-.black::before,
-.black::after,
-.red::after {
+/* Добавляем .rings-wrapper, чтобы эти стили применялись ТОЛЬКО к статическим кольцам! */
+.rings-wrapper .blue::after,
+.rings-wrapper .black::before,
+.rings-wrapper .black::after,
+.rings-wrapper .red::after {
     content: '';
     position: absolute;
     top: -10px;
@@ -184,22 +184,23 @@ body.lava-music-active {
     border-color: inherit;
 }
 
-.blue::after {
+.rings-wrapper .blue::after {
     clip-path: inset(45% 30% 25% 35%);
 }
 
-.black::before {
+.rings-wrapper .black::before {
     clip-path: inset(60% 60% 5% 5%);
 }
 
-.black::after {
+.rings-wrapper .black::after {
     clip-path: inset(45% 30% 25% 35%);
 }
 
-.red::after {
+.rings-wrapper .red::after {
     clip-path: inset(60% 60% 5% 5%);
 }
 
+/* Базовые цвета и переменные для эффекта лавы */
 .blue {
     border-color: blue;
     --lava-1: #00f0ff;
@@ -229,33 +230,54 @@ body.lava-music-active {
     --lava-1: #00ff66;
     --lava-2: #adff2f;
 }
+/* Цветовые схемы для статических и летающих колец */
+.blue, .flying-ring.blue {
+    border-color: blue !important;
+    --lava-1: #00f0ff;
+    --lava-2: #0044ff;
+}
 
-/*=====================================================================================*/
+.black, .flying-ring.black {
+    border-color: #222222 !important; /* Чуть мягче чистого черного */
+    --lava-1: #ffffff;
+    --lava-2: #b026ff;
+}
 
+.red, .flying-ring.red {
+    border-color: red !important;
+    --lava-1: #ff0055;
+    --lava-2: #ffcc00;
+}
+
+.yellow, .flying-ring.yellow {
+    border-color: #ffcc00 !important;
+    --lava-1: #ffe600;
+    --lava-2: #ff3c00;
+}
+
+.green, .flying-ring.green {
+    border-color: green !important;
+    --lava-1: #00ff66;
+    --lava-2: #adff2f;
+}
+
+/* ===================================================================================== */
 /* --- ACTIVE RING LAVA GLOW SYSTEM --- */
-
 .ring.lava-active {
     z-index: 10;
     filter: brightness(1.4) saturate(1.4);
-
-
     box-shadow: 0 0 35px var(--lava-1),
     0 0 70px var(--lava-2),
     inset 0 0 20px var(--lava-1);
-
     animation: volcanic-pulse 3s infinite alternate ease-in-out;
 }
 
 @keyframes volcanic-pulse {
-    0% {
-        transform: scale(1.02);
-    }
-    100% {
-        transform: scale(1.07);
-    }
+    0% { transform: scale(1.02); }
+    100% { transform: scale(1.07); }
 }
 
-/*=============== Mobile Adaptation ====================*/
+/* =============== Mobile Adaptation ==================== */
 @media (max-width: 550px) {
     .container {
         transform: scale(0.65);
@@ -267,4 +289,49 @@ body.lava-music-active {
     .container {
         transform: scale(0.55);
     }
+}
+
+/* Контейнер для летающих колец на весь экран */
+.flying-rings-container {
+    position: fixed; /* Фиксируем на экране, независимо от скролла */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* Пропускает клики сквозь фон */
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Базовый класс летающего кольца — МАКСИМАЛЬНО УВЕЛИЧЕННЫЙ ВАРИАНТ */
+.flying-ring {
+    position: absolute;
+    width: 110px;         /* Увеличили диаметр до 110px */
+    height: 110px;        /* Увеличили диаметр до 110px */
+    border: 10px solid;   /* Сделали рамку солидной — 10px */
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto; /* Возвращаем кликабельность кольцам */
+    box-sizing: border-box;
+    transition: box-shadow 0.5s ease, border-color 0.5s ease, transform 0.2s ease;
+
+    /* Эффект медитативного покачивания */
+    animation: floating-bob 4s ease-in-out infinite alternate;
+}
+
+/* При наведении аккуратно увеличиваем элемент */
+.flying-ring:hover {
+    transform: scale(1.15) !important;
+}
+
+@keyframes floating-bob {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-12px); }
+}
+
+/* Поддержка эффекта лавы для летающих колец */
+.flying-ring.lava-active {
+    border-color: var(--lava-1) !important;
+    box-shadow: 0 0 35px var(--lava-1), 0 0 70px var(--lava-2), inset 0 0 18px var(--lava-1);
+    filter: brightness(1.25) saturate(1.2);
 }

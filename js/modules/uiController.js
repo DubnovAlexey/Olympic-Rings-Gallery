@@ -5,10 +5,20 @@ const body = document.body;
 export const uiController = {
     // Подсветка активных элементов в зависимости от состояния плеера
     syncLava(isPaused, currentTrackIndex) {
+        // Сначала полностью очищаем лаву со всех олимпийских колец
         rings.forEach(ring => ring.classList.remove('lava-active'));
 
         if (!isPaused) {
-            rings[currentTrackIndex].classList.add('lava-active');
+            // Если индекс трека от 0 до 4 — это оригинальное олимпийское кольцо
+            if (currentTrackIndex < 5) {
+                if (rings[currentTrackIndex]) {
+                    rings[currentTrackIndex].classList.add('lava-active');
+                }
+            } else {
+                // Если индекс 5 и выше (летающее кольцо) — зажигаем ВСЕ 5 колец одновременно!
+                rings.forEach(ring => ring.classList.add('lava-active'));
+            }
+
             icon.classList.add('playing');
             body.classList.add('lava-music-active');
         } else {
