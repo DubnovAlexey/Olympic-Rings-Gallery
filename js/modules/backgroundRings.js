@@ -1,5 +1,3 @@
-
-
 const container = document.querySelector('.flying-rings-container');
 
 // Конфигурация фоновых колец

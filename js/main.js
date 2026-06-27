@@ -1,6 +1,6 @@
-import { audioPlayer } from './modules/audioPlayer.js';
-import { uiController } from './modules/uiController.js';
-import { backgroundRings } from './modules/backgroundRings.js';
+import {audioPlayer} from './modules/audioPlayer.js';
+import {uiController} from './modules/uiController.js';
+import {backgroundRings} from './modules/backgroundRings.js';
 
 // Инициализируем плеер при старте
 audioPlayer.init();
