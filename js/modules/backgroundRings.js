@@ -23,6 +23,16 @@ export const backgroundRings = {
             ringElement.classList.add(fixedColor);
 
             const trackIndex = START_INDEX + i;
+            ringElement.tabIndex = 0;
+            ringElement.setAttribute('role', 'button');
+            ringElement.setAttribute('aria-label', `Play or pause track ${trackIndex + 1}`);
+            ringElement.setAttribute('aria-pressed', 'false');
+            ringElement.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onRingClickCallback(trackIndex);
+                }
+            });
 
             // Генерируем случайные начальные позиции с учетом нового размера колец (110px)
             const x = Math.random() * (window.innerWidth - 130) + 10;
@@ -94,6 +104,7 @@ export const backgroundRings = {
     syncLava(isPaused, currentTrackIndex) {
         ringsData.forEach(ring => {
             ring.element.classList.remove('lava-active');
+            ring.element.setAttribute('aria-pressed', String(!isPaused && ring.trackIndex === currentTrackIndex));
 
             // Зажигаем индивидуальное летающее кольцо, если по нему кликнули
             if (!isPaused && ring.trackIndex === currentTrackIndex) {

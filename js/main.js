@@ -5,6 +5,12 @@ import {backgroundRings} from './modules/backgroundRings.js';
 // Инициализируем плеер при старте
 audioPlayer.init();
 
+// Текущий реальный трек определяет подсветку, даже если старое play() завершилось позднее.
+const syncPlayerVisuals = () => {
+    uiController.syncLava(audioPlayer.isPaused(), audioPlayer.getCurrentIndex());
+    backgroundRings.syncLava(audioPlayer.isPaused(), audioPlayer.getCurrentIndex());
+};
+
 // Общая функция для запуска любого трека (хоть статичного, хоть летающего)
 const handlePlayTrack = (index) => {
     const isCurrent = audioPlayer.getCurrentIndex() === index;
@@ -19,8 +25,7 @@ const handlePlayTrack = (index) => {
         // Во всех остальных случаях — гарантированно включаем звук
         audioPlayer.play(index).then(() => {
             // Зажигаем лаву там, где нужно
-            uiController.syncLava(false, index);
-            backgroundRings.syncLava(false, index);
+            syncPlayerVisuals();
         }).catch(err => {
             console.error("Error playing track:", err);
         });
@@ -44,8 +49,7 @@ uiController.bindZoichClick(() => {
     if (audioPlayer.isPaused()) {
         // Если плеер стоял на паузе — запускаем текущий сохранённый трек
         audioPlayer.play().then(() => {
-            uiController.syncLava(false, currentIndex);
-            backgroundRings.syncLava(false, currentIndex);
+            syncPlayerVisuals();
         }).catch(err => {
             console.error("Browser blocked Zoich interaction:", err);
         });
@@ -60,7 +64,9 @@ uiController.bindZoichClick(() => {
 // 4. Отслеживаем автоматическое окончание трека
 audioPlayer.onTrackEnded((nextIndex) => {
     audioPlayer.play(nextIndex).then(() => {
-        uiController.syncLava(false, nextIndex);
-        backgroundRings.syncLava(false, nextIndex);
+        syncPlayerVisuals();
+    }).catch(error => {
+        syncPlayerVisuals();
+        console.warn('The next track could not start:', error);
     });
 });

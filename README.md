@@ -12,6 +12,8 @@ An art project: animated Olympic rings with a music playlist. The page is built 
 - `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list.
 - `js/modules/uiController.js` — the interface; `js/main.js` connects everything.
 
+Keyboard controls: use Tab to reach a ring or the mascot, then Enter or Space to play/pause. The ring buttons expose their current state to assistive technology.
+
 ## Music
 
 Tracks in the playlist include:

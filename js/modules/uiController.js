@@ -6,7 +6,10 @@ export const uiController = {
     // Подсветка активных элементов в зависимости от состояния плеера
     syncLava(isPaused, currentTrackIndex) {
         // Сначала полностью очищаем лаву со всех олимпийских колец
-        rings.forEach(ring => ring.classList.remove('lava-active'));
+        rings.forEach((ring, index) => {
+            ring.classList.remove('lava-active');
+            ring.setAttribute('aria-pressed', String(!isPaused && currentTrackIndex === index));
+        });
 
         if (!isPaused) {
             // Если индекс трека от 0 до 4 — это оригинальное олимпийское кольцо
@@ -30,12 +33,25 @@ export const uiController = {
     // Регистрация кликов по кольцам
     bindRingClicks(callback) {
         rings.forEach((ring, index) => {
+            ring.tabIndex = 0;
+            ring.setAttribute('role', 'button');
+            ring.setAttribute('aria-label', `Play or pause track ${index + 1}`);
+            ring.setAttribute('aria-pressed', 'false');
             ring.addEventListener('click', () => callback(index));
+            ring.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); callback(index); }
+            });
         });
     },
 
     // Регистрация клика по Зойчу
     bindZoichClick(callback) {
+        icon.tabIndex = 0;
+        icon.setAttribute('role', 'button');
+        icon.setAttribute('aria-label', 'Play or stop the current track');
         icon.addEventListener('click', callback);
+        icon.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); callback(); }
+        });
     }
 };
