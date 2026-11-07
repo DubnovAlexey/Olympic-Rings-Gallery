@@ -246,6 +246,14 @@ body.lava-music-active .sky-glow {
 
 .zoich-wrapper:hover .zoich { transform: scale(1.08) rotate(-2deg); }
 
+/* While the first track is still loading, Zoich glows softly — the click was heard */
+.zoich.loading { animation: zoich-loading .9s ease-in-out infinite alternate; }
+
+@keyframes zoich-loading {
+    from { filter: drop-shadow(0 0 4px rgba(255, 170, 0, .4)); }
+    to { filter: drop-shadow(0 0 18px rgba(255, 170, 0, .9)); }
+}
+
 .zoich.playing {
     animation: heartbeat 3.1s infinite ease-in-out, zoich-fire 1.2s infinite alternate ease-in-out;
 }
@@ -297,11 +305,16 @@ body.lava-music-active .sky-glow {
     width: var(--size);
     height: var(--size);
     pointer-events: auto;
-    transition: box-shadow .6s ease, scale .2s ease;
+    transition: box-shadow .6s ease;
 }
 
-/* Under the mouse a ring stops (backgroundRings.js) and grows a little — easy to hit */
-.flying-ring:hover { scale: 1.15; }
+/* Under the mouse a ring stops (backgroundRings.js) and its picture grows a little — easy to hit.
+   Only the picture grows: the area that catches the mouse stays the same, so the ring does not flicker
+   between "under the mouse" and "not under the mouse". */
+.flying-ring .ring-art,
+.flying-ring .ring-ticker { transition: scale .25s ease; }
+.flying-ring:hover .ring-art,
+.flying-ring:hover .ring-ticker { scale: 1.15; }
 
 /* A short comet of scrambling glyphs runs once around the rim now and then (js/modules/backgroundRings.js) */
 .ring-ticker {
@@ -345,10 +358,11 @@ body.lava-music-active .sky-glow {
     animation: volcanic-pulse 3s infinite alternate ease-in-out;
 }
 
-.flying-ring.lava-active {
-    filter: brightness(1.25) saturate(1.2);
-    animation: ring-breathe 1.6s infinite alternate ease-in-out; /* floating rings pulse too */
-}
+.flying-ring.lava-active { filter: brightness(1.25) saturate(1.2); }
+
+/* The playing floating ring pulses too — its picture breathes, the clickable area stays still */
+.flying-ring.lava-active .ring-art,
+.flying-ring.lava-active .ring-ticker { animation: ring-breathe 1.6s infinite alternate ease-in-out; }
 
 @keyframes volcanic-pulse {
     from { transform: scale(1.02); }
@@ -429,7 +443,8 @@ body.beat-sync.lava-music-active::after {
 
 /* BEGIN SECTION 11 — reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active, .flying-ring.lava-active,
+    .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active,
+    .flying-ring.lava-active .ring-art, .flying-ring.lava-active .ring-ticker, .zoich.loading,
     body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
     body.lava-music-active::after { animation: none; box-shadow: inset 0 0 20px rgba(255, 42, 0, .7); }
     .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }

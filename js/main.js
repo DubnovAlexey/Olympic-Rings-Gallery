@@ -20,6 +20,7 @@ const syncPlayerVisuals = () => {
     const status = audioPlayer.getPlaybackStatus?.();
     const mascot = document.getElementById('zoich');
     if (mascot) {
+        mascot.classList.toggle('loading', status === 'loading'); // трек ещё грузится — Зойч мягко светится
         const label = status === 'unavailable' ? 'Audio unavailable. Select a ring to retry.'
             : status === 'blocked' ? 'Enable audio with a click or key press.' : 'Play or stop the current track';
         mascot.setAttribute('aria-label', label);
@@ -29,18 +30,24 @@ const syncPlayerVisuals = () => {
 // Ошибки media и остановка после обхода плейлиста обновляют то же видимое состояние, что и клик
 audioPlayer.onPlaybackStateChange?.(syncPlayerVisuals);
 
-// Любое кольцо: свой трек играет — пауза, иначе включаем этот трек
+// Прерванный запуск (play() перебит паузой или другим треком) — обычное дело, а не ошибка
+const reportPlayError = (where) => (err) => {
+    syncPlayerVisuals();
+    if (err?.name !== 'AbortError') console.warn(where, err);
+};
+const loading = () => audioPlayer.getPlaybackStatus?.() === 'loading';
+
+// Любое кольцо: свой трек играет — пауза, иначе включаем этот трек.
+// Пока свой трек ещё грузится, повторное нажатие ничего не обрывает.
 const handlePlayTrack = (index) => {
     beatPulse.wake(); // пульсация в такт: звук через Web Audio разрешён только в жесте пользователя
     const isCurrent = audioPlayer.getCurrentIndex() === index;
-    if (isCurrent && (!audioPlayer.isPaused() || audioPlayer.getPlaybackStatus?.() === 'loading')) {
+    if (isCurrent && loading()) return;
+    if (isCurrent && !audioPlayer.isPaused()) {
         audioPlayer.pause();
         syncPlayerVisuals();
     } else {
-        audioPlayer.play(index).then(syncPlayerVisuals).catch(err => {
-            syncPlayerVisuals();
-            console.error('Error playing track:', err);
-        });
+        audioPlayer.play(index).then(syncPlayerVisuals).catch(reportPlayError('Error playing track:'));
     }
 };
 
@@ -50,11 +57,9 @@ uiController.bindRingClicks(handlePlayTrack);
 // Зойч — общий старт/стоп текущего трека
 uiController.bindZoichClick(() => {
     beatPulse.wake();
-    if (audioPlayer.isPaused() && audioPlayer.getPlaybackStatus?.() !== 'loading') {
-        audioPlayer.play().then(syncPlayerVisuals).catch(err => {
-            syncPlayerVisuals();
-            console.error('Browser blocked Zoich interaction:', err);
-        });
+    if (loading()) return; // музыка уже запускается — второй щелчок её не обрывает
+    if (audioPlayer.isPaused()) {
+        audioPlayer.play().then(syncPlayerVisuals).catch(reportPlayError('Browser blocked Zoich interaction:'));
     } else {
         audioPlayer.stop();
         syncPlayerVisuals();

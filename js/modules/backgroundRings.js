@@ -174,8 +174,13 @@ export const backgroundRings = {
             const data = {element: ring, trackIndex, size, share, hovered: false, x: 0, y: 0, vx: 0, vy: 0,
                 bobPhase: rand(0, Math.PI * 2)};
             // Наведённое (или выбранное с клавиатуры) кольцо замирает, чтобы по нему было легко попасть
-            ring.addEventListener('pointerenter', () => { data.hovered = true; });
-            ring.addEventListener('pointerleave', () => { data.hovered = false; });
+            // Кольцо «отпускает» мышь с небольшой задержкой — без мелкого дрожания у самого края
+            let release = 0;
+            ring.addEventListener('pointerenter', () => { clearTimeout(release); data.hovered = true; });
+            ring.addEventListener('pointerleave', () => {
+                clearTimeout(release);
+                release = setTimeout(() => { data.hovered = false; }, 250);
+            });
             ring.addEventListener('focus', () => { data.hovered = true; });
             ring.addEventListener('blur', () => { data.hovered = false; });
             paintRing(ring, colour, 0.09); // объёмный обод в SVG
@@ -279,10 +284,12 @@ export const backgroundRings = {
                 // Раздвигаем, чтобы кольца не слипались; неподвижное кольцо не сдвигается
                 const overlap = minimum - distance;
                 const pushA = a.hovered ? 0 : b.hovered ? 1 : mb / (ma + mb);
-                a.x -= nx * overlap * pushA;
-                a.y -= ny * overlap * pushA;
-                b.x += nx * overlap * (1 - pushA);
-                b.y += ny * overlap * (1 - pushA);
+                // От остановленного кольца соседа отодвигаем плавно, за несколько кадров, — без рывков
+                const soft = a.hovered || b.hovered ? 0.35 : 1;
+                a.x -= nx * overlap * pushA * soft;
+                a.y -= ny * overlap * pushA * soft;
+                b.x += nx * overlap * (1 - pushA) * soft;
+                b.y += ny * overlap * (1 - pushA) * soft;
                 // Обмен импульсом вдоль линии центров
                 const relative = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
                 if (relative >= 0) continue; // уже разлетаются
