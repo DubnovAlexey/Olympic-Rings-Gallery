@@ -12,13 +12,12 @@ export const uiController = {
         });
 
         if (!isPaused) {
-            // Если индекс трека от 0 до 4 — это оригинальное олимпийское кольцо
+            // Трек 1–5 — светится своё олимпийское кольцо; треки других колец зажигают всю эмблему
             if (currentTrackIndex < 5) {
                 if (rings[currentTrackIndex]) {
                     rings[currentTrackIndex].classList.add('lava-active');
                 }
             } else {
-                // Если индекс 5 и выше (летающее кольцо) — зажигаем ВСЕ 5 колец одновременно!
                 rings.forEach(ring => ring.classList.add('lava-active'));
             }
 

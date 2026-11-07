@@ -1,346 +1,453 @@
+/* =====================================================================
+ * FILE: css/style.css
+ * PURPOSE: Olympic Rings Gallery — night stadium scene with volumetric rings.
+ * SECTIONS: 1 tokens and page; 2 sky layers; 3 tube rings (shared look); 4 Olympic emblem and weaving;
+ * 5 Zoich; 6 flying rings in depth; 7 medal carousel; 8 playing (lava) state; 9 focus; 10 small screens;
+ * 11 reduced motion.
+ * Rings are drawn with a radial gradient across the stroke (dark edge → highlight → dark edge), so they read
+ * as metal tubes instead of flat outlines. Animations use transform and opacity only.
+ * ===================================================================== */
+
+/* BEGIN SECTION 1 — tokens and page */
+:root {
+    --ring: 200px;                      /* Olympic ring diameter; scaled down on small screens */
+    --stroke: calc(var(--ring) * 0.055);
+    --night-1: #050914;
+    --night-2: #0a1733;
+    --night-3: #0e3b4a;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
 body {
     margin: 0;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background: linear-gradient(
-            -45deg,
-            #f4faf3, #32d315,
-            #f3f7fa, #04229a
-    );
-
-    background-size: 400% 400%;
-    animation: gentle-wave 9s ease infinite;
-    transition: box-shadow 0.5s ease;
-}
-
-@keyframes gentle-wave {
-    0% {
-        background-position: 0 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0 50%;
-    }
-}
-
-body.lava-music-active {
-    animation: gentle-wave 25s ease infinite, body-magma-frame 1.5s infinite alternate ease-in-out;
-}
-
-@keyframes body-magma-frame {
-    0% {
-        box-shadow: inset 0 0 15px rgba(255, 42, 0, 0.6),
-        inset 0 0 25px rgba(255, 106, 0, 0.3);
-    }
-    100% {
-        box-shadow: inset 0 0 25px rgba(255, 26, 0, 0.85),
-        inset 0 0 35px rgba(255, 170, 0, 0.5);
-    }
+    display: flex;                     /* .container centres itself with margin: auto — when the page is */
+    overflow-x: hidden;                /* taller than the window it starts at the top and scrolls instead of being cut */
+    background: var(--night-1);
+    color: #e8eef7;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent; /* no grey square on tap on phones */
 }
 
 .container {
+    position: relative;
+    z-index: 2;
+    margin: auto;
     text-align: center;
-    background-color: transparent;
-    border-radius: 0;
+    padding: 24px 16px 32px;
+}
+/* END SECTION 1 */
+
+/* BEGIN SECTION 2 — sky layers */
+.sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse 120% 70% at 50% 115%, var(--night-3) 0, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 15% -10%, #16307a 0, transparent 60%),
+        linear-gradient(180deg, var(--night-1) 0%, var(--night-2) 60%, #0b2233 100%);
 }
 
+/* Slow aurora: two huge blurred colour clouds drifting */
+.sky-aurora,
+.sky-aurora::after {
+    position: absolute;
+    inset: -30%;
+    background:
+        radial-gradient(closest-side at 30% 40%, rgba(0, 129, 200, .35), transparent),
+        radial-gradient(closest-side at 70% 60%, rgba(0, 166, 81, .28), transparent),
+        radial-gradient(closest-side at 55% 25%, rgba(238, 51, 78, .18), transparent);
+    filter: blur(40px);
+    animation: aurora-drift 38s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+.sky-aurora::after {
+    content: "";
+    inset: 0;
+    background:
+        radial-gradient(closest-side at 25% 70%, rgba(252, 177, 49, .2), transparent),
+        radial-gradient(closest-side at 80% 30%, rgba(120, 90, 255, .2), transparent);
+    animation-duration: 52s;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes aurora-drift {
+    from { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1); }
+    to { transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08); }
+}
+
+/* Stadium floodlights sweeping slowly from above */
+.sky-beams {
+    position: absolute;
+    left: 50%;
+    top: -40vmax;
+    width: 160vmax;
+    height: 160vmax;
+    margin-left: -80vmax;
+    background: conic-gradient(from 180deg at 50% 0,
+        transparent 0 155deg, rgba(255, 255, 255, .06) 162deg, transparent 170deg,
+        transparent 186deg, rgba(255, 255, 255, .05) 192deg, transparent 200deg, transparent 360deg);
+    animation: beams-sway 24s ease-in-out infinite alternate;
+    transform-origin: 50% 0;
+    will-change: transform;
+}
+
+@keyframes beams-sway {
+    from { transform: rotate(-9deg); }
+    to { transform: rotate(9deg); }
+}
+
+/* Soft light pool under the emblem — brightens while music plays */
+.sky-glow {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 900px;
+    height: 520px;
+    margin: -260px 0 0 -450px;
+    background: radial-gradient(closest-side, rgba(120, 190, 255, .16), transparent);
+    transition: opacity 1.2s ease;
+    opacity: .7;
+}
+
+body.lava-music-active .sky-glow {
+    opacity: 1;
+    background: radial-gradient(closest-side, rgba(255, 140, 60, .2), transparent);
+    animation: glow-breathe 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-breathe {
+    from { transform: scale(.94); }
+    to { transform: scale(1.06); }
+}
+/* END SECTION 2 */
+
+/* BEGIN SECTION 3 — tube rings: one look for every ring on the page */
+.tube {
+    --d: var(--c1); --m: var(--c2); --h: var(--c3);
+    --w: 0.11;                          /* stroke as a share of the radius */
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side,
+        transparent calc(100% * (1 - var(--w))),
+        var(--d) calc(100% * (1 - var(--w))),
+        var(--m) calc(100% * (1 - var(--w) * 0.72)),
+        var(--h) calc(100% * (1 - var(--w) * 0.45)),
+        var(--m) calc(100% * (1 - var(--w) * 0.22)),
+        var(--d) calc(100% - 1px),
+        transparent 100%);
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Colours: dark edge, body, highlight, plus the glow pair used while playing */
+.blue { --c1: #002a66; --c2: #0081c8; --c3: #8fd4ff; --lava-1: #00f0ff; --lava-2: #0044ff; }
+.black { --c1: #000; --c2: #23252d; --c3: #9a9eab; --lava-1: #ffffff; --lava-2: #b026ff; }
+.red { --c1: #5c0010; --c2: #ee334e; --c3: #ffb3be; --lava-1: #ff0055; --lava-2: #ffcc00; }
+.yellow { --c1: #6b4300; --c2: #fcb131; --c3: #fff0b8; --lava-1: #ffe600; --lava-2: #ff3c00; }
+.green { --c1: #003318; --c2: #00a651; --c3: #a6f7c8; --lava-1: #00ff66; --lava-2: #adff2f; }
+/* END SECTION 3 */
+
+/* BEGIN SECTION 4 — Olympic emblem and weaving */
+.rings-wrapper {
+    position: relative;
+    width: calc(var(--ring) * 2.6);
+    height: calc(var(--ring) * 1.45);
+    margin: 18px auto 0;
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .55));
+    animation: emblem-float 7s ease-in-out infinite alternate;
+}
+
+@keyframes emblem-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
+.ring {
+    position: absolute;
+    width: var(--ring);
+    height: var(--ring);
+    --w: 0.1;
+    transition: transform .4s ease, box-shadow .8s ease;
+}
+
+.ring:hover { transform: scale(1.05); }
+
+.rings-wrapper .blue { left: 0; top: 0; }
+.rings-wrapper .black { left: calc(var(--ring) * 0.8); top: 0; }
+.rings-wrapper .red { left: calc(var(--ring) * 1.6); top: 0; }
+.rings-wrapper .yellow { left: calc(var(--ring) * 0.4); top: calc(var(--ring) * 0.45); }
+.rings-wrapper .green { left: calc(var(--ring) * 1.2); top: calc(var(--ring) * 0.45); }
+
+/* Weaving: copies of the upper rings redraw short arcs on top of the lower rings */
+.rings-wrapper .blue::after,
+.rings-wrapper .black::before,
+.rings-wrapper .black::after,
+.rings-wrapper .red::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    z-index: 2;
+}
+
+.rings-wrapper .blue::after { clip-path: inset(45% 30% 25% 35%); }
+.rings-wrapper .black::before { clip-path: inset(60% 60% 5% 5%); }
+.rings-wrapper .black::after { clip-path: inset(45% 30% 25% 35%); }
+.rings-wrapper .red::after { clip-path: inset(60% 60% 5% 5%); }
+/* END SECTION 4 */
+
+/* BEGIN SECTION 5 — Zoich */
 .zoich-wrapper {
     position: relative;
     display: inline-block;
     cursor: pointer;
 }
 
-.zoich {
-    transition: transform 0.2s, filter 0.4s ease;
-    display: block;
+/* A soft spotlight on the floor under the mascot */
+.zoich-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 70%;
+    height: 22px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(140, 200, 255, .35), transparent);
+    filter: blur(2px);
 }
 
-.zoich-wrapper:hover .zoich {
-    transform: scale(1.2);
+.zoich {
+    position: relative;
+    display: block;
+    width: clamp(130px, min(22vw, 30vh), 255px);
+    height: auto;
+    border-radius: 24px;
+    transition: transform .25s ease, filter .4s ease;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .5));
 }
+
+.zoich-wrapper:hover .zoich { transform: scale(1.08) rotate(-2deg); }
 
 .zoich.playing {
     animation: heartbeat 3.1s infinite ease-in-out, zoich-fire 1.2s infinite alternate ease-in-out;
 }
 
 @keyframes zoich-fire {
-    0% {
-        filter: drop-shadow(0px 0px 12px #ff2a00) brightness(1.1);
-    }
-    100% {
-        filter: drop-shadow(0px 0px 28px #ffaa00) brightness(1.35);
-    }
+    from { filter: drop-shadow(0 0 12px #ff2a00) brightness(1.1); }
+    to { filter: drop-shadow(0 0 28px #ffaa00) brightness(1.3); }
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    20% { transform: scale(1.1); }
+    40% { transform: scale(1.02); }
+    60% { transform: scale(1.12); }
 }
 
 .tooltip {
     position: absolute;
-    bottom: -20px;
+    bottom: -22px;
     left: 50%;
     transform: translateX(-50%);
-    background: none;
-    color: #3b8410;
-    font-size: 14px;
-    font-family: sans-serif;
+    color: #9fe0a8;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    display: none;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity .3s ease;
 }
 
-.zoich-wrapper:hover .tooltip {
-    display: block;
-}
+.zoich-wrapper:hover .tooltip { opacity: 1; }
+/* END SECTION 5 */
 
-@keyframes heartbeat {
-    0% {
-        transform: scale(1);
-    }
-    20% {
-        transform: scale(1.12);
-    }
-    40% {
-        transform: scale(1.02);
-    }
-    60% {
-        transform: scale(1.15);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.rings-wrapper {
-    position: relative;
-    width: 520px;
-    height: 290px;
-    margin: 20px auto 0 auto;
-}
-
-.ring {
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 10px solid;
-    box-sizing: border-box;
-    cursor: pointer;
-    transition: box-shadow 0.8s ease, filter 0.8s ease, transform 0.4s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.ring:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(255, 69, 0, 0.6);
-}
-
-/* --- Positioning rings --- */
-.blue {
-    left: 0;
-    top: 0;
-}
-
-.black {
-    left: 160px;
-    top: 0;
-}
-
-.red {
-    left: 320px;
-    top: 0;
-}
-
-.yellow {
-    left: 80px;
-    top: 90px;
-}
-
-.green {
-    left: 240px;
-    top: 90px;
-}
-
-/* =================================================== */
-/* --- PERFECT 3D WEAVING COOKBOOK --- */
-/* Добавляем .rings-wrapper, чтобы эти стили применялись ТОЛЬКО к статическим кольцам! */
-.rings-wrapper .blue::after,
-.rings-wrapper .black::before,
-.rings-wrapper .black::after,
-.rings-wrapper .red::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    box-sizing: border-box;
-    z-index: 2;
-    border: 10.5px solid;
-    border-color: inherit;
-}
-
-.rings-wrapper .blue::after {
-    clip-path: inset(45% 30% 25% 35%);
-}
-
-.rings-wrapper .black::before {
-    clip-path: inset(60% 60% 5% 5%);
-}
-
-.rings-wrapper .black::after {
-    clip-path: inset(45% 30% 25% 35%);
-}
-
-.rings-wrapper .red::after {
-    clip-path: inset(60% 60% 5% 5%);
-}
-
-/* Базовые цвета и переменные для эффекта лавы */
-.blue {
-    border-color: blue;
-    --lava-1: #00f0ff;
-    --lava-2: #0044ff;
-}
-
-.black {
-    border-color: black;
-    --lava-1: #ffffff;
-    --lava-2: #b026ff;
-}
-
-.red {
-    border-color: red;
-    --lava-1: #ff0055;
-    --lava-2: #ffcc00;
-}
-
-.yellow {
-    border-color: yellow;
-    --lava-1: #ffe600;
-    --lava-2: #ff3c00;
-}
-
-.green {
-    border-color: green;
-    --lava-1: #00ff66;
-    --lava-2: #adff2f;
-}
-
-/* Цветовые схемы для статических и летающих колец */
-.blue, .flying-ring.blue {
-    border-color: blue !important;
-    --lava-1: #00f0ff;
-    --lava-2: #0044ff;
-}
-
-.black, .flying-ring.black {
-    border-color: #222222 !important; /* Чуть мягче чистого черного */
-    --lava-1: #ffffff;
-    --lava-2: #b026ff;
-}
-
-.red, .flying-ring.red {
-    border-color: red !important;
-    --lava-1: #ff0055;
-    --lava-2: #ffcc00;
-}
-
-.yellow, .flying-ring.yellow {
-    border-color: #ffcc00 !important;
-    --lava-1: #ffe600;
-    --lava-2: #ff3c00;
-}
-
-.green, .flying-ring.green {
-    border-color: green !important;
-    --lava-1: #00ff66;
-    --lava-2: #adff2f;
-}
-
-/* ===================================================================================== */
-/* --- ACTIVE RING LAVA GLOW SYSTEM --- */
-.ring.lava-active {
-    z-index: 10;
-    filter: brightness(1.4) saturate(1.4);
-    box-shadow: 0 0 35px var(--lava-1),
-    0 0 70px var(--lava-2),
-    inset 0 0 20px var(--lava-1);
-    animation: volcanic-pulse 3s infinite alternate ease-in-out;
-}
-
-@keyframes volcanic-pulse {
-    0% {
-        transform: scale(1.02);
-    }
-    100% {
-        transform: scale(1.07);
-    }
-}
-
-/* =============== Mobile Adaptation ==================== */
-@media (max-width: 550px) {
-    .container {
-        transform: scale(0.65);
-        transform-origin: center;
-    }
-}
-
-@media (max-width: 380px) {
-    .container {
-        transform: scale(0.55);
-    }
-}
-
-/* Контейнер для летающих колец на весь экран */
+/* BEGIN SECTION 6 — flying rings in depth */
 .flying-rings-container {
-    position: fixed; /* Фиксируем на экране, независимо от скролла */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none; /* Пропускает клики сквозь фон */
-    overflow: hidden;
+    position: fixed;
+    inset: 0;
     z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    perspective: 900px;
 }
 
-/* Базовый класс летающего кольца — МАКСИМАЛЬНО УВЕЛИЧЕННЫЙ ВАРИАНТ */
 .flying-ring {
     position: absolute;
-    width: 110px; /* Увеличили диаметр до 110px */
-    height: 110px; /* Увеличили диаметр до 110px */
-    border: 10px solid; /* Сделали рамку солидной — 10px */
+    left: 0;
+    top: 0;
+    width: var(--size, 110px);
+    height: var(--size, 110px);
+    --w: 0.14;
+    pointer-events: auto;
+    will-change: transform;
+    transform-style: preserve-3d;
+    transition: box-shadow .6s ease, opacity .6s ease;
+}
+
+/* Far rings are smaller, softer and paler — the eye reads them as distant */
+.flying-ring.depth-far { opacity: .45; filter: blur(1.6px) saturate(.8); }
+.flying-ring.depth-mid { opacity: .75; filter: blur(.4px); }
+.flying-ring.depth-near { opacity: .95; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45)); }
+.flying-ring:hover { opacity: 1; filter: none; }
+/* END SECTION 6 */
+
+/* BEGIN SECTION 7 — medal carousel */
+.medal-carousel {
+    --radius: 190px;
+    --medal: 112px;
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+    width: min(620px, 100%);
+    margin: 18px auto 0;
+}
+
+.carousel-stage {
+    position: relative;
+    height: calc(var(--medal) + 50px);
+    perspective: 1000px;
+    touch-action: pan-y;               /* horizontal swipes rotate the carousel, vertical ones scroll */
+    cursor: grab;
+}
+
+.carousel-stage:active { cursor: grabbing; }
+
+.carousel-track {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+}
+
+/* A faint orbit line under the carousel */
+.carousel-stage::before {
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 62%;
+    height: 34px;
     border-radius: 50%;
+    border: 1px solid rgba(160, 200, 255, .18);
+    box-shadow: 0 0 24px rgba(120, 180, 255, .12);
+    transform: rotateX(70deg);
+}
+
+.medal-ring {
+    position: absolute;
+    left: calc(var(--medal) / -2);
+    top: calc(var(--medal) / -2);
+    width: var(--medal);
+    height: var(--medal);
+    --w: 0.15;
+    will-change: transform, opacity;
+    transition: box-shadow .6s ease;
+}
+
+.medal-ring.is-front { filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .55)) !important; }
+
+.gold { --c1: #5a3b00; --c2: #d4a017; --c3: #fff1a8; --lava-1: #ffe27a; --lava-2: #ff9d00; }
+.silver { --c1: #3a4048; --c2: #b8c2cc; --c3: #ffffff; --lava-1: #ffffff; --lava-2: #8fb8ff; }
+.bronze { --c1: #3d1e08; --c2: #b06a35; --c3: #ffd0a6; --lava-1: #ffb070; --lava-2: #ff5a1f; }
+.ice { --c1: #0b3d5c; --c2: #6fd3ff; --c3: #f0fdff; --lava-1: #bff4ff; --lava-2: #3aa0ff; }
+.flame { --c1: #5c0a00; --c2: #ff5a1f; --c3: #ffe08a; --lava-1: #ffcc33; --lava-2: #ff2a00; }
+
+.carousel-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 220, 255, .28);
+    background: rgba(10, 20, 40, .55);
+    color: #e8eef7;
+    font-size: 26px;
+    line-height: 1;
     cursor: pointer;
-    pointer-events: auto; /* Возвращаем кликабельность кольцам */
-    box-sizing: border-box;
-    transition: box-shadow 0.5s ease, border-color 0.5s ease, transform 0.2s ease;
-
-    /* Эффект медитативного покачивания */
-    animation: floating-bob 4s ease-in-out infinite alternate;
+    transition: background .2s ease, border-color .2s ease, transform .2s ease;
 }
 
-/* При наведении аккуратно увеличиваем элемент */
-.flying-ring:hover {
-    transform: scale(1.15) !important;
+.carousel-btn:hover { background: rgba(40, 70, 120, .7); border-color: rgba(200, 220, 255, .6); transform: scale(1.06); }
+
+.carousel-caption {
+    grid-column: 1 / -1;
+    margin: 4px 0 0;
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(220, 232, 250, .7);
+}
+/* END SECTION 7 */
+
+/* BEGIN SECTION 8 — playing (lava) state */
+.ring.lava-active,
+.flying-ring.lava-active,
+.medal-ring.lava-active {
+    --d: var(--lava-2);
+    --m: var(--c2);
+    --h: var(--lava-1);
+    box-shadow: 0 0 30px var(--lava-1), 0 0 70px var(--lava-2);
+    opacity: 1;
 }
 
-@keyframes floating-bob {
-    0% {
-        transform: translateY(0px);
-    }
-    100% {
-        transform: translateY(-12px);
-    }
+.ring.lava-active { z-index: 10; animation: volcanic-pulse 3s infinite alternate ease-in-out; }
+.flying-ring.lava-active { filter: drop-shadow(0 0 10px var(--lava-1)); }
+
+@keyframes volcanic-pulse {
+    from { transform: scale(1.02); }
+    to { transform: scale(1.07); }
 }
 
-/* Поддержка эффекта лавы для летающих колец */
-.flying-ring.lava-active {
-    border-color: var(--lava-1) !important;
-    box-shadow: 0 0 35px var(--lava-1), 0 0 70px var(--lava-2), inset 0 0 18px var(--lava-1);
-    filter: brightness(1.25) saturate(1.2);
+body.lava-music-active .rings-wrapper { animation-duration: 3.5s; }
+/* END SECTION 8 */
+
+/* BEGIN SECTION 9 — focus: a round glow instead of the browser's square frame */
+.ring:focus,
+.flying-ring:focus,
+.medal-ring:focus,
+.zoich:focus { outline: none; }
+
+.ring:focus-visible,
+.flying-ring:focus-visible,
+.medal-ring:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 22px 4px rgba(140, 200, 255, .8);
 }
+
+.zoich:focus-visible { filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 16px rgba(140, 200, 255, .9)); }
+
+.carousel-btn:focus { outline: none; }
+.carousel-btn:focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, .85); }
+/* END SECTION 9 */
+
+/* BEGIN SECTION 10 — small screens */
+@media (max-width: 640px) {
+    :root { --ring: 34vw; }
+    .medal-carousel { --radius: 34vw; --medal: 22vw; }
+    .carousel-btn { width: 36px; height: 36px; font-size: 22px; }
+}
+
+@media (max-height: 760px) and (min-width: 641px) {
+    :root { --ring: 160px; }
+    .container { padding: 10px 16px 14px; }
+    .rings-wrapper { margin-top: 10px; }
+    .medal-carousel { --radius: 160px; --medal: 92px; margin-top: 6px; }
+}
+/* END SECTION 10 */
+
+/* BEGIN SECTION 11 — reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .sky-aurora, .sky-aurora::after, .sky-beams, .rings-wrapper, .ring.lava-active,
+    body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
+    .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }
+}
+/* END SECTION 11 */

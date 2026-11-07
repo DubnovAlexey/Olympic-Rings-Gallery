@@ -1,71 +1,66 @@
+// ФАЙЛ: js/main.js
+// НАЗНАЧЕНИЕ: связывает плеер с тремя группами колец: олимпийская эмблема (треки 1–5),
+// летающие кольца (6–15) и медальная карусель (16–20); Зойч запускает и останавливает музыку.
 import {audioPlayer} from './modules/audioPlayer.js';
 import {uiController} from './modules/uiController.js';
 import {backgroundRings} from './modules/backgroundRings.js';
+import {medalCarousel} from './modules/medalCarousel.js';
 
-// Инициализируем плеер при старте
 audioPlayer.init();
 
-// Текущий реальный трек определяет подсветку, даже если старое play() завершилось позднее.
+// Подсветка всех колец следует за реальным состоянием плеера, даже если старое play() завершилось позднее
 const syncPlayerVisuals = () => {
-    uiController.syncLava(audioPlayer.isPaused(), audioPlayer.getCurrentIndex());
-    backgroundRings.syncLava(audioPlayer.isPaused(), audioPlayer.getCurrentIndex());
+    const paused = audioPlayer.isPaused();
+    const index = audioPlayer.getCurrentIndex();
+    uiController.syncLava(paused, index);
+    backgroundRings.syncLava(paused, index);
+    medalCarousel.syncLava(paused, index);
+    const status = audioPlayer.getPlaybackStatus?.();
+    const mascot = document.getElementById('zoich');
+    if (mascot) {
+        const label = status === 'unavailable' ? 'Audio unavailable. Select a ring to retry.'
+            : status === 'blocked' ? 'Enable audio with a click or key press.' : 'Play or stop the current track';
+        mascot.setAttribute('aria-label', label);
+        mascot.setAttribute('title', label);
+    }
 };
+// Ошибки media и остановка после обхода плейлиста обновляют то же видимое состояние, что и клик
+audioPlayer.onPlaybackStateChange?.(syncPlayerVisuals);
 
-// Общая функция для запуска любого трека (хоть статичного, хоть летающего)
+// Любое кольцо: свой трек играет — пауза, иначе включаем этот трек
 const handlePlayTrack = (index) => {
     const isCurrent = audioPlayer.getCurrentIndex() === index;
-
-    // Если кликнули на текущий играющий трек — ставим на паузу
-    if (isCurrent && !audioPlayer.isPaused()) {
+    if (isCurrent && (!audioPlayer.isPaused() || audioPlayer.getPlaybackStatus?.() === 'loading')) {
         audioPlayer.pause();
-        // Гасим лаву и на олимпийских, и на фоновых кольцах
-        uiController.syncLava(true, index);
-        backgroundRings.syncLava(true, index);
+        syncPlayerVisuals();
     } else {
-        // Во всех остальных случаях — гарантированно включаем звук
-        audioPlayer.play(index).then(() => {
-            // Зажигаем лаву там, где нужно
+        audioPlayer.play(index).then(syncPlayerVisuals).catch(err => {
             syncPlayerVisuals();
-        }).catch(err => {
-            console.error("Error playing track:", err);
+            console.error('Error playing track:', err);
         });
     }
 };
 
-// 1. Инициализируем летающие кольца и передаем им общее действие при клике
-backgroundRings.init((clickedTrackIndex) => {
-    handlePlayTrack(clickedTrackIndex);
-});
+backgroundRings.init(handlePlayTrack);
+medalCarousel.init(handlePlayTrack);
+uiController.bindRingClicks(handlePlayTrack);
 
-// 2. Связываем клики по олимпийским кольцам с общей логикой
-uiController.bindRingClicks((clickedIndex) => {
-    handlePlayTrack(clickedIndex);
-});
-
-// 3. Связываем клик по Зойчу с Мастер-логикой (Старт/Стоп)
+// Зойч — общий старт/стоп текущего трека
 uiController.bindZoichClick(() => {
-    const currentIndex = audioPlayer.getCurrentIndex();
-
-    if (audioPlayer.isPaused()) {
-        // Если плеер стоял на паузе — запускаем текущий сохранённый трек
-        audioPlayer.play().then(() => {
+    if (audioPlayer.isPaused() && audioPlayer.getPlaybackStatus?.() !== 'loading') {
+        audioPlayer.play().then(syncPlayerVisuals).catch(err => {
             syncPlayerVisuals();
-        }).catch(err => {
-            console.error("Browser blocked Zoich interaction:", err);
+            console.error('Browser blocked Zoich interaction:', err);
         });
     } else {
-        // Если играл — полностью останавливаем всё
         audioPlayer.stop();
-        uiController.syncLava(true, currentIndex);
-        backgroundRings.syncLava(true, currentIndex);
+        syncPlayerVisuals();
     }
 });
 
-// 4. Отслеживаем автоматическое окончание трека
+// Трек закончился — играет следующий по списку (после 20-го снова первый)
 audioPlayer.onTrackEnded((nextIndex) => {
-    audioPlayer.play(nextIndex).then(() => {
-        syncPlayerVisuals();
-    }).catch(error => {
+    audioPlayer.play(nextIndex).then(syncPlayerVisuals).catch(error => {
         syncPlayerVisuals();
         console.warn('The next track could not start:', error);
     });

@@ -6,27 +6,30 @@
 
 ## English
 
-An art project: animated Olympic rings with a music playlist. The page is built by JavaScript modules — the rings in the background, the player, the playlist and the interface are separate parts.
+An art page where every ring plays its own track. A night-stadium sky with a slow aurora and sweeping floodlights surrounds the Olympic emblem, rings drift around it at three depths, and a medal carousel holds the newest tracks. Every ring is drawn as a metal tube with a highlight rather than a flat outline.
 
 **Live demo:** https://dubnovalexey.github.io/Olympic-Rings-Gallery/
 
 ### Quick tour
 
-Select a ring, switch tracks and use the playback controls. Repeat with Tab and Enter/Space to inspect keyboard access and the current playback state.
+Press any ring to play its track, press it again to pause; Zoich starts or stops the music. Spin the medal carousel with its arrows, a swipe or the ←/→ keys — its rings stand still in front for a few seconds, and a medal track that comes up in the playlist is turned to the front by itself. Move the mouse to see the drifting rings shift in depth. With Tab, focus shows a round glow around rings; Enter or Space plays and pauses.
 
-Follow `js/main.js` into `backgroundRings.js`, `audioPlayer.js`, `playlist.js` and `uiController.js` under `js/modules/`. These are browser ES modules; serve the folder over HTTP. Audio starts according to browser gesture rules.
+Follow `js/main.js` into `backgroundRings.js`, `medalCarousel.js`, `audioPlayer.js`, `playlist.js` and `uiController.js` under `js/modules/`. These are browser ES modules; serve the folder over HTTP. Audio starts according to browser gesture rules.
 
 The language links above switch the documentation; they do not translate the existing demo interface.
 
 ### How it is built
 
-- `js/modules/backgroundRings.js` — the animated rings.
-- `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list.
-- `js/modules/uiController.js` — the interface; `js/main.js` connects everything.
+- Tracks 1–5 — the Olympic emblem (`js/modules/uiController.js`); the rings keep their real weaving.
+- Tracks 6–15 — ten drifting rings on far, middle and near layers (`js/modules/backgroundRings.js`). Motion is time-based, written only to `transform`, follows the mouse with parallax and pauses on a hidden tab.
+- Tracks 16–20 — the medal carousel: gold, silver, bronze, ice and flame (`js/modules/medalCarousel.js`).
+- `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list; `js/main.js` connects everything. With reduced motion requested, the sky, the rings and the carousel stay still.
 
 Keyboard controls: use Tab to reach a ring or the mascot, then Enter or Space to play/pause. The ring buttons expose their current state to assistive technology.
 
 ### Music
+
+The sequential playlist includes all **20 local audio files** and loops after the final track. Every track now has its own ring: the emblem, the drifting rings and the medal carousel together cover all 20.
 
 Tracks in the playlist include:
 
@@ -54,8 +57,8 @@ The page uses ES modules, so open it through a local web server (for example `np
 
 These are proposals, not currently implemented features.
 
-- Visual: refine small control labels and focus indication; provide a quieter reduced-motion composition.
-- Engineering: add explicit animation pause/resume and time-based motion, with permanent player race tests.
+- Visual: audio-reactive glow of the playing ring after performance profiling.
+- Engineering: permanent tests for the player and the carousel state.
 - Functionality: add an optional local-track picker and audio-reactive rings after profiling; keep the current playlist unchanged.
 
 ---
@@ -64,27 +67,30 @@ These are proposals, not currently implemented features.
 
 ## Русский
 
-Арт-проект: анимированные олимпийские кольца и музыкальный плейлист. Страницу собирают модули JavaScript — кольца на фоне, плеер, плейлист и интерфейс живут отдельно.
+Арт-страница, где каждое кольцо играет свой трек. Олимпийскую эмблему окружает ночной стадион с медленным сиянием и лучами прожекторов, вокруг на трёх глубинах летают кольца, а самые новые треки живут в медальной карусели. Каждое кольцо нарисовано как металлическая трубка с бликом, а не плоская обводка.
 
 **Демо:** https://dubnovalexey.github.io/Olympic-Rings-Gallery/
 
 ### Быстрый просмотр
 
-Выберите кольцо, переключите трек и воспользуйтесь управлением плеера. Повторите через Tab и Enter/пробел, проверяя клавиатуру и состояние воспроизведения.
+Нажмите на любое кольцо — заиграет его трек, повторное нажатие ставит паузу; Зойч включает и выключает музыку. Медальную карусель крутят стрелки, свайп или клавиши ←/→: кольца по очереди задерживаются впереди, а трек из карусели, до которого дошла очередь, сам поворачивает своё кольцо вперёд. Подвигайте мышью — летающие кольца сместятся по глубине. При навигации через Tab фокус показан круглым свечением; Enter и пробел запускают и останавливают трек.
 
-Проследите `js/main.js` к `backgroundRings.js`, `audioPlayer.js`, `playlist.js` и `uiController.js` в `js/modules/`. Это браузерные ES-модули: папку нужно отдавать по HTTP. Звук включается по правилам жеста браузера.
+Проследите `js/main.js` к `backgroundRings.js`, `medalCarousel.js`, `audioPlayer.js`, `playlist.js` и `uiController.js` в `js/modules/`. Это браузерные ES-модули: папку нужно отдавать по HTTP. Звук включается по правилам жеста браузера.
 
 Языковые ссылки выше переключают документацию, а не переводят существующий интерфейс демо.
 
 ### Как устроено
 
-- `js/modules/backgroundRings.js` — анимированные кольца.
-- `js/modules/audioPlayer.js` и `js/modules/playlist.js` — воспроизведение и список треков.
-- `js/modules/uiController.js` — интерфейс; `js/main.js` соединяет всё вместе.
+- Треки 1–5 — олимпийская эмблема (`js/modules/uiController.js`), кольца сохраняют настоящее переплетение.
+- Треки 6–15 — десять летающих колец на дальнем, среднем и ближнем слоях (`js/modules/backgroundRings.js`). Движение считается по времени, пишется только в `transform`, следует за мышью с параллаксом и останавливается на скрытой вкладке.
+- Треки 16–20 — медальная карусель: золото, серебро, бронза, лёд и огонь (`js/modules/medalCarousel.js`).
+- `js/modules/audioPlayer.js` и `js/modules/playlist.js` — воспроизведение и список треков; `js/main.js` соединяет всё вместе. При «уменьшить анимацию» небо, кольца и карусель стоят на месте.
 
 Управление с клавиатуры: Tab выбирает кольцо или талисман, Enter и пробел запускают или останавливают трек. Состояние колец доступно программам чтения с экрана.
 
 ### Музыка
+
+Последовательный плейлист включает все **20 локальных аудиофайлов** и после последнего возвращается к началу. Теперь у каждого трека своё кольцо: эмблема, летающие кольца и медальная карусель вместе охватывают все 20.
 
 В плейлисте, среди прочего:
 
@@ -112,8 +118,8 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 Это предложения, а не уже реализованные возможности.
 
-- Визуал: уточнить мелкие подписи и индикацию фокуса, добавить спокойный вариант reduced motion.
-- Инженерия: явная пауза/возобновление анимации и движение по времени, постоянные тесты гонок плеера.
+- Визуал: свечение играющего кольца в такт музыке — после замеров производительности.
+- Инженерия: постоянные тесты плеера и состояния карусели.
 - Функции: необязательный выбор локального трека и реакция колец на звук после замеров; текущий плейлист сохранить.
 
 ---
@@ -124,7 +130,7 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 ## עברית
 
-פרויקט אמנות: טבעות אולימפיות מונפשות ורשימת השמעה מוזיקלית. הדף בנוי ממודולים של JavaScript — הטבעות, הנגן, רשימת ההשמעה והממשק.
+דף אמנות שבו כל טבעת מנגנת רצועה משלה. סמל הטבעות האולימפי מוקף בשמי לילה של אצטדיון עם זוהר איטי וקרני זרקורים, טבעות מרחפות סביבו בשלושה עומקים, והרצועות החדשות ביותר נמצאות בקרוסלת המדליות. כל טבעת מצוירת כצינור מתכת עם ברק, ולא כקו מתאר שטוח.
 
 **הדגמה:** https://dubnovalexey.github.io/Olympic-Rings-Gallery/
 
@@ -132,13 +138,15 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 ### סיור קצר
 
-בחרו טבעת, החליפו רצועה ונסו את פקדי הנגן. חזרו על כך עם Tab ו־Enter/רווח כדי לבדוק נגישות מקלדת ומצב ניגון.
+לחצו על טבעת כלשהי כדי לנגן את הרצועה שלה, ושוב כדי להשהות; זויץ׳ מפעיל ועוצר את המוזיקה. את קרוסלת המדליות מסובבים בחצים, בהחלקה או במקשי ←/→: כל טבעת נעצרת מלפנים לכמה שניות, ורצועה מהקרוסלה שהגיע תורה מסובבת את הטבעת שלה קדימה מעצמה. הזיזו את העכבר — הטבעות המרחפות זזות לפי העומק. בניווט עם Tab המיקוד מסומן בזוהר עגול; Enter ורווח מנגנים ומשהים.
 
-עקבו מ־`js/main.js` אל `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. שמע מתחיל בהתאם לכללי המחווה של הדפדפן.
+עקבו מ־`js/main.js` אל `backgroundRings.js`, `medalCarousel.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. שמע מתחיל בהתאם לכללי המחווה של הדפדפן. רצועות 1–5 — הסמל האולימפי, 6–15 — עשר טבעות מרחפות בשלוש שכבות עומק, 16–20 — קרוסלת המדליות: זהב, כסף, ארד, קרח ואש. כשמבוקשת הפחתת תנועה, השמיים, הטבעות והקרוסלה נשארים במקום.
 
 קישורי השפה למעלה מחליפים את התיעוד, ולא מתרגמים את ממשק ההדגמה הקיים.
 
 ### מוזיקה
+
+רשימת ההשמעה כוללת את כל **20 קובצי השמע המקומיים**, לפי הסדר ובחזרה להתחלה אחרי האחרון. עכשיו לכל רצועה יש טבעת משלה: הסמל, הטבעות המרחפות וקרוסלת המדליות מכסים יחד את כל 20.
 
 ברשימת ההשמעה, בין היתר:
 
@@ -166,8 +174,8 @@ HTML5 · CSS3 · JavaScript (ES modules) · GitHub Pages
 
 אלה הצעות, לא יכולות שכבר מומשו.
 
-- חזות: לשפר כיתובים קטנים וחיווי מיקוד ולהציע קומפוזיציה רגועה בהפחתת תנועה.
-- הנדסה: השהיה וחידוש מפורשים לאנימציה, תנועה לפי זמן ובדיקות קבועות למרוצי הנגן.
+- חזות: זוהר של הטבעת המתנגנת בקצב המוזיקה, לאחר מדידת ביצועים.
+- הנדסה: בדיקות קבועות לנגן ולמצב הקרוסלה.
 - יכולות: בחירת רצועה מקומית ותגובה של הטבעות לשמע לאחר מדידה; לשמור את רשימת ההשמעה הקיימת.
 
 </div>
