@@ -138,7 +138,7 @@ export const medalCarousel = {
             ring.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(var(--radius)) rotateY(${(-a).toFixed(2)}deg) scale(${(0.62 + depth * 0.38).toFixed(3)})`;
             ring.style.opacity = (0.35 + depth * 0.65).toFixed(3);
             ring.style.zIndex = String(Math.round(depth * 100));
-            ring.style.filter = `blur(${((1 - depth) * 2.2).toFixed(2)}px)`;
+            ring.style.filter = `brightness(${(0.6 + depth * 0.4).toFixed(3)})`; // дальние темнее, но не размыты
             ring.classList.toggle('is-front', i === front);
         });
         if (caption) {

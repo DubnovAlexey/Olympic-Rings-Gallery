@@ -196,8 +196,8 @@ export const backgroundRings = {
             const px = still ? 0 : -pointer.smoothX * ring.layer.parallax;
             const py = still ? 0 : -pointer.smoothY * ring.layer.parallax;
             const bob = still ? 0 : Math.sin(t * 0.9 + ring.bobPhase) * 6;
-            const tiltX = still ? 0 : Math.sin(t * ring.tiltSpeed + ring.tiltPhase) * 28;
-            const tiltY = still ? 0 : Math.cos(t * ring.tiltSpeed * 0.8 + ring.tiltPhase) * 34;
+            const tiltX = still ? 0 : Math.sin(t * ring.tiltSpeed + ring.tiltPhase) * 16;
+            const tiltY = still ? 0 : Math.cos(t * ring.tiltSpeed * 0.8 + ring.tiltPhase) * 20;
             ring.element.style.transform =
                 `translate3d(${(ring.x + px).toFixed(1)}px, ${(ring.y + py + bob).toFixed(1)}px, 0) ` +
                 `rotateX(${tiltX.toFixed(1)}deg) rotateY(${tiltY.toFixed(1)}deg)`;

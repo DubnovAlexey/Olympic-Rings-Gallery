@@ -54,6 +54,24 @@ body {
         linear-gradient(180deg, var(--night-1) 0%, var(--night-2) 60%, #0b2233 100%);
 }
 
+/* Play of light, as on the original page: a big gradient from a light edge through bright green and white to
+   deep blue slides across the screen and back. Same colours and timing as before (9 s, calmer 25 s with music). */
+.sky-wave {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(-45deg, #f4faf3, #32d315, #f3f7fa, #04229a);
+    background-size: 400% 400%;
+    animation: gentle-wave 9s ease infinite;
+}
+
+body.lava-music-active .sky-wave { animation-duration: 25s; }
+
+@keyframes gentle-wave {
+    0% { background-position: 0 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
 /* Slow aurora: two huge blurred colour clouds drifting */
 .sky-aurora,
 .sky-aurora::after {
@@ -64,6 +82,7 @@ body {
         radial-gradient(closest-side at 70% 60%, rgba(0, 166, 81, .28), transparent),
         radial-gradient(closest-side at 55% 25%, rgba(238, 51, 78, .18), transparent);
     filter: blur(40px);
+    opacity: .55;
     animation: aurora-drift 38s ease-in-out infinite alternate;
     will-change: transform;
 }
@@ -136,12 +155,14 @@ body.lava-music-active .sky-glow {
     border: 0;
     border-radius: 50%;
     background: radial-gradient(circle closest-side,
-        transparent calc(100% * (1 - var(--w))),
+        transparent calc(100% * (1 - var(--w)) - .5px),
         var(--d) calc(100% * (1 - var(--w))),
-        var(--m) calc(100% * (1 - var(--w) * 0.72)),
-        var(--h) calc(100% * (1 - var(--w) * 0.45)),
-        var(--m) calc(100% * (1 - var(--w) * 0.22)),
-        var(--d) calc(100% - 1px),
+        var(--m) calc(100% * (1 - var(--w)) + 1.5px),
+        var(--m) calc(100% * (1 - var(--w) * 0.62)),
+        var(--h) calc(100% * (1 - var(--w) * 0.48)),
+        var(--m) calc(100% * (1 - var(--w) * 0.34)),
+        var(--m) calc(100% - 2px),
+        var(--d) calc(100% - .5px),
         transparent 100%);
     padding: 0;
     cursor: pointer;
@@ -162,12 +183,6 @@ body.lava-music-active .sky-glow {
     height: calc(var(--ring) * 1.45);
     margin: 18px auto 0;
     filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .55));
-    animation: emblem-float 7s ease-in-out infinite alternate;
-}
-
-@keyframes emblem-float {
-    from { transform: translateY(0); }
-    to { transform: translateY(-8px); }
 }
 
 .ring {
@@ -294,9 +309,9 @@ body.lava-music-active .sky-glow {
     transition: box-shadow .6s ease, opacity .6s ease;
 }
 
-/* Far rings are smaller, softer and paler — the eye reads them as distant */
-.flying-ring.depth-far { opacity: .45; filter: blur(1.6px) saturate(.8); }
-.flying-ring.depth-mid { opacity: .75; filter: blur(.4px); }
+/* Far rings are smaller and paler — the eye reads them as distant; no blur, every ring stays sharp */
+.flying-ring.depth-far { opacity: .5; filter: saturate(.85); }
+.flying-ring.depth-mid { opacity: .78; }
 .flying-ring.depth-near { opacity: .95; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45)); }
 .flying-ring:hover { opacity: 1; filter: none; }
 
@@ -407,7 +422,8 @@ body.lava-music-active .sky-glow {
     font-size: .8rem;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: rgba(220, 232, 250, .7);
+    color: rgba(240, 246, 255, .9);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .65);
 }
 /* END SECTION 7 */
 
@@ -437,7 +453,7 @@ body.lava-music-active .sky-glow {
 }
 
 .flying-ring.lava-active { filter: brightness(1.25) saturate(1.2); }
-/* the carousel writes its own depth blur inline, so the playing medal needs !important to stay bright */
+/* the carousel writes its own depth filter inline, so the playing medal needs !important to stay bright */
 .medal-ring.lava-active { filter: brightness(1.3) saturate(1.3) !important; }
 
 @keyframes volcanic-pulse {
@@ -445,7 +461,6 @@ body.lava-music-active .sky-glow {
     to { transform: scale(1.07); }
 }
 
-body.lava-music-active .rings-wrapper { animation-duration: 3.5s; }
 
 /* Magma frame: the edges of the screen glow red-orange while music plays */
 body::after {
@@ -533,7 +548,7 @@ body.beat-sync.lava-music-active::after {
 
 /* BEGIN SECTION 11 — reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .sky-aurora, .sky-aurora::after, .sky-beams, .rings-wrapper, .ring.lava-active,
+    .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active,
     body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
     body.lava-music-active::after { animation: none; box-shadow: inset 0 0 20px rgba(255, 42, 0, .7); }
     .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }
