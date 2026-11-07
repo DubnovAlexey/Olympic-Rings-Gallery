@@ -21,6 +21,7 @@ const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 let track = null, caption = null, rings = [];
 let angle = 0, target = null, frame = 0, last = 0, hold = false, playingIndex = -1, restSince = 0;
+let dragging = false, dragMoved = false; // идёт ли сейчас перетаскивание и было ли оно свайпом, а не нажатием
 
 // Угол, при котором кольцо с номером i стоит прямо перед зрителем
 const frontAngle = (i) => -i * STEP;
@@ -196,4 +197,3 @@ export const medalCarousel = {
     // END SECTION 5
 };
 
-let dragging = false, dragMoved = false;

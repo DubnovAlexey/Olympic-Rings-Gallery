@@ -300,8 +300,9 @@ body.lava-music-active .sky-glow {
     position: absolute;
     left: 0;
     top: 0;
-    width: var(--size, 110px);
-    height: var(--size, 110px);
+    --size: 110px;                     /* default; js/modules/backgroundRings.js writes each ring's own size inline */
+    width: var(--size);
+    height: var(--size);
     --w: 0.14;
     pointer-events: auto;
     will-change: transform;
