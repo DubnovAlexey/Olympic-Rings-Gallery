@@ -1,17 +1,16 @@
 /* =====================================================================
  * FILE: css/style.css
- * PURPOSE: Olympic Rings Gallery — night stadium scene with volumetric rings.
- * SECTIONS: 1 tokens and page; 2 sky layers; 3 tube rings (shared look); 4 Olympic emblem and weaving;
- * 5 Zoich; 6 flying rings in depth; 7 medal carousel; 8 playing (lava) state; 9 focus; 10 small screens;
- * 11 reduced motion.
- * Rings are drawn with a radial gradient across the stroke (dark edge → highlight → dark edge), so they read
- * as metal tubes instead of flat outlines. Animations use transform and opacity only.
+ * PURPOSE: Olympic Rings Gallery — every ring plays its own track.
+ * SECTIONS: 1 tokens and page; 2 sky layers (play of light gives the space its depth); 3 rings;
+ * 4 Olympic emblem and weaving; 5 Zoich; 6 floating rings; 7 (reserved); 8 fiery glow and pulse;
+ * 9 focus; 10 small screens; 11 reduced motion.
+ * Rings are drawn as SVG by js/modules/ringArt.js: a gradient rim from a light top-left to a dark bottom-right
+ * and a narrow shine, so each ring looks volumetric while its edge stays sharp. They float flat, like in 2D.
  * ===================================================================== */
 
 /* BEGIN SECTION 1 — tokens and page */
 :root {
     --ring: 200px;                      /* Olympic ring diameter; scaled down on small screens */
-    --stroke: calc(var(--ring) * 0.055);
     --night-1: #050914;
     --night-2: #0a1733;
     --night-3: #0e3b4a;
@@ -148,32 +147,38 @@ body.lava-music-active .sky-glow {
 }
 /* END SECTION 2 */
 
-/* BEGIN SECTION 3 — tube rings: one look for every ring on the page */
+/* BEGIN SECTION 3 — rings */
+/* The ring picture is an SVG inside the element (js/modules/ringArt.js); the element itself only gives
+   the round shape for hover, glow and clicks. */
 .tube {
-    --d: var(--c1); --m: var(--c2); --h: var(--c3);
-    --w: 0.11;                          /* stroke as a share of the radius */
     border: 0;
     border-radius: 50%;
-    background: radial-gradient(circle closest-side,
-        transparent calc(100% * (1 - var(--w)) - .5px),
-        var(--d) calc(100% * (1 - var(--w))),
-        var(--m) calc(100% * (1 - var(--w)) + 1.5px),
-        var(--m) calc(100% * (1 - var(--w) * 0.62)),
-        var(--h) calc(100% * (1 - var(--w) * 0.48)),
-        var(--m) calc(100% * (1 - var(--w) * 0.34)),
-        var(--m) calc(100% - 2px),
-        var(--d) calc(100% - .5px),
-        transparent 100%);
+    background: transparent;
     padding: 0;
     cursor: pointer;
 }
 
-/* Colours: dark edge, body, highlight, plus the glow pair used while playing */
-.blue { --c1: #002a66; --c2: #0081c8; --c3: #8fd4ff; --lava-1: #00f0ff; --lava-2: #0044ff; }
-.black { --c1: #000; --c2: #23252d; --c3: #9a9eab; --lava-1: #ffffff; --lava-2: #b026ff; }
-.red { --c1: #5c0010; --c2: #ee334e; --c3: #ffb3be; --lava-1: #ff0055; --lava-2: #ffcc00; }
-.yellow { --c1: #6b4300; --c2: #fcb131; --c3: #fff0b8; --lava-1: #ffe600; --lava-2: #ff3c00; }
-.green { --c1: #003318; --c2: #00a651; --c3: #a6f7c8; --lava-1: #00ff66; --lava-2: #adff2f; }
+.ring-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .28));  /* a small cast shadow — the ring lies above the space */
+}
+
+/* Glow pair used while a ring plays */
+.blue { --lava-1: #00f0ff; --lava-2: #0044ff; }
+.black { --lava-1: #ffffff; --lava-2: #b026ff; }
+.red { --lava-1: #ff0055; --lava-2: #ffcc00; }
+.yellow { --lava-1: #ffe600; --lava-2: #ff3c00; }
+.green { --lava-1: #00ff66; --lava-2: #adff2f; }
+.gold { --lava-1: #ffe27a; --lava-2: #ff9d00; }
+.silver { --lava-1: #ffffff; --lava-2: #8fb8ff; }
+.bronze { --lava-1: #ffb070; --lava-2: #ff5a1f; }
+.ice { --lava-1: #bff4ff; --lava-2: #3aa0ff; }
+.flame { --lava-1: #ffcc33; --lava-2: #ff2a00; }
 /* END SECTION 3 */
 
 /* BEGIN SECTION 4 — Olympic emblem and weaving */
@@ -182,14 +187,12 @@ body.lava-music-active .sky-glow {
     width: calc(var(--ring) * 2.6);
     height: calc(var(--ring) * 1.45);
     margin: 18px auto 0;
-    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .55));
 }
 
 .ring {
     position: absolute;
     width: var(--ring);
     height: var(--ring);
-    --w: 0.1;
     transition: transform .4s ease, box-shadow .8s ease, filter .8s ease;
 }
 
@@ -201,23 +204,13 @@ body.lava-music-active .sky-glow {
 .rings-wrapper .yellow { left: calc(var(--ring) * 0.4); top: calc(var(--ring) * 0.45); }
 .rings-wrapper .green { left: calc(var(--ring) * 1.2); top: calc(var(--ring) * 0.45); }
 
-/* Weaving: copies of the upper rings redraw short arcs on top of the lower rings */
-.rings-wrapper .blue::after,
-.rings-wrapper .black::before,
-.rings-wrapper .black::after,
-.rings-wrapper .red::after {
-    content: "";
+/* Weaving: copies of the upper rings redraw short arcs on top of the lower rings (clip set in ringArt.js) */
+.weave {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    background: inherit;
     z-index: 2;
+    pointer-events: none;
 }
-
-.rings-wrapper .blue::after { clip-path: inset(45% 30% 25% 35%); }
-.rings-wrapper .black::before { clip-path: inset(60% 60% 5% 5%); }
-.rings-wrapper .black::after { clip-path: inset(45% 30% 25% 35%); }
-.rings-wrapper .red::after { clip-path: inset(60% 60% 5% 5%); }
 /* END SECTION 4 */
 
 /* BEGIN SECTION 5 — Zoich */
@@ -286,14 +279,14 @@ body.lava-music-active .sky-glow {
 .zoich-wrapper:hover .tooltip { opacity: 1; }
 /* END SECTION 5 */
 
-/* BEGIN SECTION 6 — flying rings in depth */
+/* BEGIN SECTION 6 — floating rings */
+/* Above the page, so any ring can be pressed at any moment */
 .flying-rings-container {
     position: fixed;
     inset: 0;
-    z-index: 1;
+    z-index: 3;
     overflow: hidden;
     pointer-events: none;
-    perspective: 900px;
 }
 
 .flying-ring {
@@ -303,20 +296,14 @@ body.lava-music-active .sky-glow {
     --size: 110px;                     /* default; js/modules/backgroundRings.js writes each ring's own size inline */
     width: var(--size);
     height: var(--size);
-    --w: 0.14;
     pointer-events: auto;
-    will-change: transform;
-    transform-style: preserve-3d;
-    transition: box-shadow .6s ease, opacity .6s ease;
+    transition: box-shadow .6s ease, scale .2s ease;
 }
 
-/* Far rings are smaller and paler — the eye reads them as distant; no blur, every ring stays sharp */
-.flying-ring.depth-far { opacity: .5; filter: saturate(.85); }
-.flying-ring.depth-mid { opacity: .78; }
-.flying-ring.depth-near { opacity: .95; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .45)); }
-.flying-ring:hover { opacity: 1; filter: none; }
+/* Under the mouse a ring stops (backgroundRings.js) and grows a little — easy to hit */
+.flying-ring:hover { scale: 1.15; }
 
-/* A short comet of scrambling glyphs runs once around the tube now and then (js/modules/backgroundRings.js) */
+/* A short comet of scrambling glyphs runs once around the rim now and then (js/modules/backgroundRings.js) */
 .ring-ticker {
     position: absolute;
     inset: 0;
@@ -336,115 +323,20 @@ body.lava-music-active .sky-glow {
     stroke-width: .6px;
 }
 
-.flying-ring.ticker-on .ring-ticker { opacity: .75; }
+.flying-ring.ticker-on .ring-ticker { opacity: .8; }
 /* END SECTION 6 */
 
-/* BEGIN SECTION 7 — medal carousel */
-.medal-carousel {
-    --radius: 190px;
-    --medal: 112px;
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 8px;
-    width: min(620px, 100%);
-    margin: 18px auto 0;
-}
-
-.carousel-stage {
-    position: relative;
-    height: calc(var(--medal) + 50px);
-    perspective: 1000px;
-    touch-action: pan-y;               /* horizontal swipes rotate the carousel, vertical ones scroll */
-    cursor: grab;
-}
-
-.carousel-stage:active { cursor: grabbing; }
-
-.carousel-track {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform-style: preserve-3d;
-}
-
-/* A faint orbit line under the carousel */
-.carousel-stage::before {
-    content: "";
-    position: absolute;
-    left: 6%;
-    right: 6%;
-    top: 62%;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid rgba(160, 200, 255, .18);
-    box-shadow: 0 0 24px rgba(120, 180, 255, .12);
-    transform: rotateX(70deg);
-}
-
-.medal-ring {
-    position: absolute;
-    left: calc(var(--medal) / -2);
-    top: calc(var(--medal) / -2);
-    width: var(--medal);
-    height: var(--medal);
-    --w: 0.15;
-    will-change: transform, opacity;
-    transition: box-shadow .6s ease;
-}
-
-.medal-ring.is-front { filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .55)) !important; }
-
-.gold { --c1: #5a3b00; --c2: #d4a017; --c3: #fff1a8; --lava-1: #ffe27a; --lava-2: #ff9d00; }
-.silver { --c1: #3a4048; --c2: #b8c2cc; --c3: #ffffff; --lava-1: #ffffff; --lava-2: #8fb8ff; }
-.bronze { --c1: #3d1e08; --c2: #b06a35; --c3: #ffd0a6; --lava-1: #ffb070; --lava-2: #ff5a1f; }
-.ice { --c1: #0b3d5c; --c2: #6fd3ff; --c3: #f0fdff; --lava-1: #bff4ff; --lava-2: #3aa0ff; }
-.flame { --c1: #5c0a00; --c2: #ff5a1f; --c3: #ffe08a; --lava-1: #ffcc33; --lava-2: #ff2a00; }
-
-.carousel-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid rgba(200, 220, 255, .28);
-    background: rgba(10, 20, 40, .55);
-    color: #e8eef7;
-    font-size: 26px;
-    line-height: 1;
-    cursor: pointer;
-    transition: background .2s ease, border-color .2s ease, transform .2s ease;
-}
-
-.carousel-btn:hover { background: rgba(40, 70, 120, .7); border-color: rgba(200, 220, 255, .6); transform: scale(1.06); }
-
-.carousel-caption {
-    grid-column: 1 / -1;
-    margin: 4px 0 0;
-    font-size: .8rem;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: rgba(240, 246, 255, .9);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, .65);
-}
-/* END SECTION 7 */
-
-/* BEGIN SECTION 8 — fiery glow: hover, playing (lava) ring and the magma frame of the screen */
+/* BEGIN SECTION 8 — fiery glow: hover, playing (lava) ring, magma frame and the pulse */
 /* Hover: a warm fiery halo around any ring */
 .ring:hover,
-.flying-ring:hover,
-.medal-ring:hover {
+.flying-ring:hover {
     box-shadow: 0 0 25px rgba(255, 69, 0, .6), 0 0 50px rgba(255, 140, 0, .25);
 }
 
 /* Playing ring: coloured lava glow outside, a hot inner reflection and extra brightness */
 .ring.lava-active,
-.flying-ring.lava-active,
-.medal-ring.lava-active {
-    --d: var(--lava-2);
-    --m: var(--c2);
-    --h: var(--lava-1);
+.flying-ring.lava-active {
     box-shadow: 0 0 35px var(--lava-1), 0 0 70px var(--lava-2), inset 0 0 20px var(--lava-1);
-    opacity: 1;
 }
 
 .ring.lava-active {
@@ -453,22 +345,27 @@ body.lava-music-active .sky-glow {
     animation: volcanic-pulse 3s infinite alternate ease-in-out;
 }
 
-.flying-ring.lava-active { filter: brightness(1.25) saturate(1.2); }
-/* the carousel writes its own depth filter inline, so the playing medal needs !important to stay bright */
-.medal-ring.lava-active { filter: brightness(1.3) saturate(1.3) !important; }
+.flying-ring.lava-active {
+    filter: brightness(1.25) saturate(1.2);
+    animation: ring-breathe 1.6s infinite alternate ease-in-out; /* floating rings pulse too */
+}
 
 @keyframes volcanic-pulse {
     from { transform: scale(1.02); }
     to { transform: scale(1.07); }
 }
 
+@keyframes ring-breathe {
+    from { scale: 1.02; }
+    to { scale: 1.12; }
+}
 
 /* Magma frame: the edges of the screen glow red-orange while music plays */
 body::after {
     content: "";
     position: fixed;
     inset: 0;
-    z-index: 3;
+    z-index: 4;
     pointer-events: none;
     opacity: 0;
     transition: opacity .8s ease;
@@ -484,72 +381,55 @@ body.lava-music-active::after {
     to { box-shadow: inset 0 0 25px rgba(255, 26, 0, .85), inset 0 0 35px rgba(255, 170, 0, .5); }
 }
 
-/* In time with the music (js/modules/beatPulse.js): when the analyser works, --beat and --level replace the
-   timer-based pulses — Zoich and the playing ring jump on each strong beat, and the glow follows the bass */
+/* In time with the music (js/modules/beatPulse.js): the timer pulses above keep running, and every strong beat
+   adds a kick on top — Zoich and the playing emblem ring grow for a moment, the glow flares with the bass. */
 body { --beat: 0; --level: 0; }
 
-body.beat-sync .zoich.playing {
-    animation: none;
-    transform: scale(calc(1 + var(--beat) * .14));
-    filter: drop-shadow(0 0 calc(12px + var(--level) * 22px) #ff5a00) brightness(calc(1.1 + var(--level) * .35));
-}
-
-body.beat-sync .ring.lava-active {
-    animation: none;
-    transform: scale(calc(1.02 + var(--beat) * .07));
-}
+body.beat-sync .zoich.playing { scale: calc(1 + var(--beat) * .12); }
+body.beat-sync .ring.lava-active { scale: calc(1 + var(--beat) * .08); }
 
 body.beat-sync .ring.lava-active,
-body.beat-sync .flying-ring.lava-active,
-body.beat-sync .medal-ring.lava-active {
-    box-shadow: 0 0 calc(30px + var(--beat) * 25px) var(--lava-1),
-                0 0 calc(60px + var(--level) * 50px) var(--lava-2),
-                inset 0 0 calc(16px + var(--beat) * 12px) var(--lava-1);
+body.beat-sync .flying-ring.lava-active {
+    box-shadow: 0 0 calc(35px + var(--beat) * 30px) var(--lava-1),
+                0 0 calc(70px + var(--level) * 50px) var(--lava-2),
+                inset 0 0 calc(20px + var(--beat) * 14px) var(--lava-1);
 }
 
 body.beat-sync.lava-music-active::after {
     animation: none;
-    box-shadow: inset 0 0 calc(15px + var(--level) * 25px) rgba(255, 42, 0, calc(.55 + var(--beat) * .35)),
-                inset 0 0 calc(25px + var(--level) * 25px) rgba(255, 140, 0, calc(.3 + var(--level) * .3));
+    box-shadow: inset 0 0 calc(18px + var(--level) * 25px) rgba(255, 42, 0, calc(.6 + var(--beat) * .3)),
+                inset 0 0 calc(28px + var(--level) * 25px) rgba(255, 140, 0, calc(.35 + var(--level) * .3));
 }
 /* END SECTION 8 */
 
 /* BEGIN SECTION 9 — focus: a round glow instead of the browser's square frame */
 .ring:focus,
 .flying-ring:focus,
-.medal-ring:focus,
 .zoich:focus { outline: none; }
 
 .ring:focus-visible,
-.flying-ring:focus-visible,
-.medal-ring:focus-visible {
+.flying-ring:focus-visible {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 22px 4px rgba(140, 200, 255, .8);
 }
 
 .zoich:focus-visible { filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 16px rgba(140, 200, 255, .9)); }
-
-.carousel-btn:focus { outline: none; }
-.carousel-btn:focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, .85); }
 /* END SECTION 9 */
 
 /* BEGIN SECTION 10 — small screens */
 @media (max-width: 640px) {
     :root { --ring: 34vw; }
-    .medal-carousel { --radius: 34vw; --medal: 22vw; }
-    .carousel-btn { width: 36px; height: 36px; font-size: 22px; }
 }
 
-@media (max-height: 760px) and (min-width: 641px) {
+@media (max-height: 640px) and (min-width: 641px) {
     :root { --ring: 160px; }
     .container { padding: 10px 16px 14px; }
     .rings-wrapper { margin-top: 10px; }
-    .medal-carousel { --radius: 160px; --medal: 92px; margin-top: 6px; }
 }
 /* END SECTION 10 */
 
 /* BEGIN SECTION 11 — reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active,
+    .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active, .flying-ring.lava-active,
     body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
     body.lava-music-active::after { animation: none; box-shadow: inset 0 0 20px rgba(255, 42, 0, .7); }
     .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }

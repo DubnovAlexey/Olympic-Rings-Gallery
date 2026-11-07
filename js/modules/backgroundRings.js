@@ -1,24 +1,27 @@
 // ФАЙЛ: js/modules/backgroundRings.js
-// НАЗНАЧЕНИЕ: десять летающих колец (треки 6–15) на трёх глубинах — дальние меньше, бледнее и медленнее.
-// РАЗДЕЛЫ: 1 настройки; 2 создание колец; 3 движение по времени; 4 подсветка играющего трека.
-// Движение считается по прошедшему времени (одинаковая скорость на 60 и 120 Гц) и пишется только в transform,
-// поэтому браузер не пересчитывает раскладку страницы в каждом кадре. Кольца слегка разворачиваются в 3D и
-// смещаются за мышью тем сильнее, чем ближе слой. На скрытой вкладке движение останавливается, при
-// «уменьшить анимацию» кольца стоят на месте.
-// Колец каждого цвета по два, поэтому у каждого свой «инопланетный» алфавит: время от времени по ободу кольца
-// пробегает короткая комета из его знаков (знаки на бегу перебираются) и исчезает — так одноцветные кольца различимы.
+// НАЗНАЧЕНИЕ: пятнадцать колец, которые хаотично плавают по экрану в одной плоскости (треки 6–20)
+// и отскакивают друг от друга.
+// РАЗДЕЛЫ: 1 настройки и алфавиты; 2 кометы; 3 создание колец; 4 движение и столкновения; 5 подсветка трека.
+// Десять колец олимпийских цветов (по два каждого) и пять медальных: золото, серебро, бронза, лёд, огонь.
+// Все кольца чёткие и полноцветные, лежат поверх страницы и нажимаются в любой момент. Наведённое кольцо
+// останавливается и чуть увеличивается, чтобы по нему было легко попасть. Столкновения упругие, как у бильярдных
+// шаров: лёгкое кольцо отлетает сильнее тяжёлого. Движение считается по прошедшему времени и пишется только
+// в transform. На скрытой вкладке движение стоит, при «уменьшить анимацию» кольца неподвижны.
+// У одноцветных колец свой «инопланетный» алфавит: время от времени по ободу пробегает короткая комета из его знаков.
+import {paintRing} from './ringArt.js';
 
-// BEGIN SECTION 1 — настройки
+// BEGIN SECTION 1 — настройки и алфавиты
 const container = document.querySelector('.flying-rings-container');
-const TOTAL_RINGS = 10;
-const START_INDEX = 5; // летающие кольца отвечают за треки с 6-го по 15-й
-const COLORS = ['blue', 'black', 'red', 'yellow', 'green'];
-// far — дальний слой, near — ближний. Размер — доля олимпийского кольца в центре: эмблема всегда самая крупная.
-const LAYERS = [
-    {name: 'far', size: [0.3, 0.37], speed: 16, parallax: 10},
-    {name: 'mid', size: [0.44, 0.52], speed: 28, parallax: 22},
-    {name: 'near', size: [0.58, 0.66], speed: 42, parallax: 38}
+const START_INDEX = 5; // летающие кольца отвечают за треки с 6-го по 20-й
+const RINGS = [
+    'blue', 'black', 'red', 'yellow', 'green',
+    'blue', 'black', 'red', 'yellow', 'green',
+    'gold', 'silver', 'bronze', 'ice', 'flame'
 ];
+const MEDAL_NAMES = {gold: 'Gold ring', silver: 'Silver ring', bronze: 'Bronze ring', ice: 'Ice ring', flame: 'Flame ring'};
+// Размер — доля олимпийского кольца в центре: эмблема всегда самая крупная, остальные хорошо видны
+const SIZE_SHARE = [0.48, 0.66];
+const SPEED = [26, 48]; // пикселей в секунду
 // Диаметр кольца эмблемы на текущем экране (он сам меняется в CSS на телефонах и низких экранах)
 const emblemRing = () => document.querySelector('.rings-wrapper .ring')?.offsetWidth || 200;
 const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -26,9 +29,10 @@ const rand = (min, max) => min + Math.random() * (max - min);
 let ringsData = [];
 let frame = 0;
 let last = 0;
-const pointer = {x: 0, y: 0, smoothX: 0, smoothY: 0};
-// Пары одного цвета — кольца i и i + 5. У каждого кольца свой «нереальный» алфавит (древние и редкие системы письма),
-// знаки которого ничего не означают. Шрифты — те, что есть в системе.
+let placedWidth = 0; // ширина экрана, по которой кольца расставлены в последний раз
+
+// Пары одного цвета — кольца i и i + 5. У каждого из десяти свой «нереальный» алфавит (древние и редкие
+// системы письма), знаки которого ничего не означают. Медальные кольца и так различаются цветом.
 const ALPHABETS = [
     {chars: 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ', font: '"Segoe UI Historic", "Noto Sans Runic", serif'},
     {chars: 'ⴰⴱⴳⴷⴹⴻⴼⴽⵀⵃⵄⵅⵇⵉⵊⵍⵎⵏⵓⵔⵕⵖⵙⵚⵛⵜⵟⵡⵢⵣ', font: 'Ebrima, "Noto Sans Tifinagh", sans-serif'},
@@ -41,14 +45,14 @@ const ALPHABETS = [
     {chars: 'ሀሁሂሃሄህሆለሉሊላሌልሎሐሑሒሓሔሕሖ', font: 'Nyala, Ebrima, "Noto Sans Ethiopic", serif'},
     {chars: '⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠿⡇⢸⣿', font: '"Segoe UI Symbol", "Noto Sans Symbols 2", monospace'}
 ];
-
 const COMET_LENGTH = 6;      // знаков в пробегающей «комете»
 const COMET_RUN_MS = 2600;   // за сколько комета обегает кольцо
 const randomGlyph = (glyphs) => glyphs[Math.floor(Math.random() * glyphs.length)];
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // END SECTION 1
 
-// Короткая «комета» из нескольких знаков на трубке кольца (SVG textPath). Голова яркая, хвост гаснет.
+// BEGIN SECTION 2 — кометы
+// Короткая «комета» из нескольких знаков на ободе кольца (SVG textPath). Голова яркая, хвост гаснет.
 function engraving(i) {
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('viewBox', '0 0 100 100');
@@ -56,7 +60,7 @@ function engraving(i) {
     svg.classList.add('ring-ticker');
     const path = document.createElementNS(SVG_NS, 'path');
     path.id = `ring-ticker-path-${i}`;
-    path.setAttribute('d', 'M50 6 a44 44 0 1 1 -0.01 0'); // линия знаков чуть внутри: сами знаки ложатся на трубку
+    path.setAttribute('d', 'M50 5 a45 45 0 1 1 -0.01 0'); // линия знаков чуть внутри: сами знаки ложатся на обод
     path.setAttribute('fill', 'none');
     const text = document.createElementNS(SVG_NS, 'text');
     text.style.fontFamily = ALPHABETS[i].font;
@@ -103,51 +107,65 @@ function scheduleTicker(ring, alphabet) {
         scheduleTicker(ring, alphabet);
     }, rand(8000, 22000));
 }
+// END SECTION 2
 
 export const backgroundRings = {
-    // BEGIN SECTION 2 — создание колец
+    // BEGIN SECTION 3 — создание колец
     init(onRingClickCallback) {
         if (!container) return;
         container.replaceChildren();
         ringsData = [];
-        for (let i = 0; i < TOTAL_RINGS; i++) {
-            const layer = LAYERS[i % LAYERS.length];
-            const share = rand(layer.size[0], layer.size[1]);
-            const size = Math.round(share * emblemRing());
+        const base = emblemRing();
+        RINGS.forEach((colour, i) => {
+            const share = rand(SIZE_SHARE[0], SIZE_SHARE[1]);
+            const size = Math.round(share * base);
             const trackIndex = START_INDEX + i;
             const ring = document.createElement('button');
             ring.type = 'button';
-            ring.className = `flying-ring tube ${COLORS[i % COLORS.length]} depth-${layer.name}`;
+            ring.className = `flying-ring tube ${colour}`;
             ring.style.setProperty('--size', `${size}px`);
-            ring.setAttribute('aria-label', `Play or pause track ${trackIndex + 1}`);
+            const name = MEDAL_NAMES[colour] ? `${MEDAL_NAMES[colour]}: play` : 'Play';
+            ring.setAttribute('aria-label', `${name} or pause track ${trackIndex + 1}`);
             ring.setAttribute('aria-pressed', 'false');
             // Enter и пробел у настоящей кнопки работают сами
             ring.addEventListener('click', event => {
                 event.stopPropagation();
                 onRingClickCallback(trackIndex);
             });
-            ring.appendChild(engraving(i));
-            container.appendChild(ring);
-            scheduleTicker(ring, ALPHABETS[i].chars);
-            const angle = rand(0, Math.PI * 2);
-            ringsData.push({
-                element: ring, trackIndex, layer, size, share,
-                x: rand(10, Math.max(20, window.innerWidth - size - 10)),
-                y: rand(10, Math.max(20, window.innerHeight - size - 10)),
-                vx: Math.cos(angle) * layer.speed, vy: Math.sin(angle) * layer.speed,
-                tiltPhase: rand(0, Math.PI * 2), tiltSpeed: rand(0.25, 0.6), bobPhase: rand(0, Math.PI * 2)
-            });
-        }
-        window.addEventListener('pointermove', event => {
-            pointer.x = event.clientX / window.innerWidth - 0.5;
-            pointer.y = event.clientY / window.innerHeight - 0.5;
-        }, {passive: true});
-        window.addEventListener('resize', () => {
-            const base = emblemRing();
-            for (const ring of ringsData) {
-                ring.size = Math.round(ring.share * base);
-                ring.element.style.setProperty('--size', `${ring.size}px`);
+            const data = {element: ring, trackIndex, size, share, hovered: false, x: 0, y: 0, vx: 0, vy: 0,
+                bobPhase: rand(0, Math.PI * 2)};
+            // Наведённое (или выбранное с клавиатуры) кольцо замирает, чтобы по нему было легко попасть
+            ring.addEventListener('pointerenter', () => { data.hovered = true; });
+            ring.addEventListener('pointerleave', () => { data.hovered = false; });
+            ring.addEventListener('focus', () => { data.hovered = true; });
+            ring.addEventListener('blur', () => { data.hovered = false; });
+            paintRing(ring, colour, 0.09); // объёмный обод в SVG
+            if (i < ALPHABETS.length) {
+                ring.appendChild(engraving(i));
+                scheduleTicker(ring, ALPHABETS[i].chars);
             }
+            container.appendChild(ring);
+            this.place(data);
+            const angle = rand(0, Math.PI * 2), speed = rand(SPEED[0], SPEED[1]);
+            data.vx = Math.cos(angle) * speed;
+            data.vy = Math.sin(angle) * speed;
+            ringsData.push(data);
+        });
+        placedWidth = window.innerWidth;
+        window.addEventListener('resize', () => {
+            const size = emblemRing();
+            // Страница открылась в свёрнутом окне (ширина почти ноль) — расставляем кольца заново по всему экрану
+            const replace = placedWidth < 300 && window.innerWidth >= 300;
+            const placed = [];
+            for (const ring of ringsData) {
+                ring.size = Math.round(ring.share * size);
+                ring.element.style.setProperty('--size', `${ring.size}px`);
+                if (replace) this.place(ring, placed);
+                placed.push(ring);
+                ring.x = Math.min(ring.x, Math.max(0, window.innerWidth - ring.size));
+                ring.y = Math.min(ring.y, Math.max(0, window.innerHeight - ring.size));
+            }
+            placedWidth = window.innerWidth;
             this.render(performance.now());
         }, {passive: true});
         document.addEventListener('visibilitychange', () => this.start());
@@ -155,9 +173,24 @@ export const backgroundRings = {
         this.render(performance.now());
         this.start();
     },
-    // END SECTION 2
 
-    // BEGIN SECTION 3 — движение по времени
+    // Случайное место, не налезающее на уже расставленные кольца
+    place(data, others = ringsData) {
+        const w = window.innerWidth, h = window.innerHeight;
+        for (let attempt = 0; attempt < 40; attempt++) {
+            data.x = rand(0, Math.max(1, w - data.size));
+            data.y = rand(0, Math.max(1, h - data.size));
+            const free = others.every(other => {
+                const dx = (data.x + data.size / 2) - (other.x + other.size / 2);
+                const dy = (data.y + data.size / 2) - (other.y + other.size / 2);
+                return Math.hypot(dx, dy) > (data.size + other.size) / 2;
+            });
+            if (free) return;
+        }
+    },
+    // END SECTION 3
+
+    // BEGIN SECTION 4 — движение и столкновения
     start() {
         if (frame || document.hidden || motion.matches) return;
         last = performance.now();
@@ -171,6 +204,7 @@ export const backgroundRings = {
         last = now;
         const width = window.innerWidth, height = window.innerHeight;
         for (const ring of ringsData) {
+            if (ring.hovered) continue;
             ring.x += ring.vx * dt;
             ring.y += ring.vy * dt;
             if (ring.x <= 0 || ring.x + ring.size >= width) {
@@ -182,30 +216,55 @@ export const backgroundRings = {
                 ring.y = Math.min(Math.max(ring.y, 0), height - ring.size);
             }
         }
+        this.collide();
         this.render(now);
         frame = requestAnimationFrame(next => this.tick(next));
     },
 
+    // Упругие столкновения кругов: масса пропорциональна площади кольца, наведённое кольцо — неподвижная «стена»
+    collide() {
+        for (let i = 0; i < ringsData.length; i++) {
+            for (let j = i + 1; j < ringsData.length; j++) {
+                const a = ringsData[i], b = ringsData[j];
+                const dx = (b.x + b.size / 2) - (a.x + a.size / 2);
+                const dy = (b.y + b.size / 2) - (a.y + a.size / 2);
+                const distance = Math.hypot(dx, dy) || 0.001;
+                const minimum = (a.size + b.size) / 2;
+                if (distance >= minimum) continue;
+                const nx = dx / distance, ny = dy / distance;
+                const ma = a.size * a.size, mb = b.size * b.size;
+                // Раздвигаем, чтобы кольца не слипались; неподвижное кольцо не сдвигается
+                const overlap = minimum - distance;
+                const pushA = a.hovered ? 0 : b.hovered ? 1 : mb / (ma + mb);
+                a.x -= nx * overlap * pushA;
+                a.y -= ny * overlap * pushA;
+                b.x += nx * overlap * (1 - pushA);
+                b.y += ny * overlap * (1 - pushA);
+                // Обмен импульсом вдоль линии центров
+                const relative = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+                if (relative >= 0) continue; // уже разлетаются
+                if (a.hovered) { b.vx -= 2 * relative * nx; b.vy -= 2 * relative * ny; continue; }
+                if (b.hovered) { a.vx += 2 * relative * nx; a.vy += 2 * relative * ny; continue; }
+                const impulse = (2 * relative) / (ma + mb);
+                a.vx += impulse * mb * nx;
+                a.vy += impulse * mb * ny;
+                b.vx -= impulse * ma * nx;
+                b.vy -= impulse * ma * ny;
+            }
+        }
+    },
+
     render(now) {
-        // Плавное следование за мышью: каждый кадр проходим часть пути до указателя
-        pointer.smoothX += (pointer.x - pointer.smoothX) * 0.06;
-        pointer.smoothY += (pointer.y - pointer.smoothY) * 0.06;
         const t = now / 1000;
         const still = motion.matches;
         for (const ring of ringsData) {
-            const px = still ? 0 : -pointer.smoothX * ring.layer.parallax;
-            const py = still ? 0 : -pointer.smoothY * ring.layer.parallax;
-            const bob = still ? 0 : Math.sin(t * 0.9 + ring.bobPhase) * 6;
-            const tiltX = still ? 0 : Math.sin(t * ring.tiltSpeed + ring.tiltPhase) * 16;
-            const tiltY = still ? 0 : Math.cos(t * ring.tiltSpeed * 0.8 + ring.tiltPhase) * 20;
-            ring.element.style.transform =
-                `translate3d(${(ring.x + px).toFixed(1)}px, ${(ring.y + py + bob).toFixed(1)}px, 0) ` +
-                `rotateX(${tiltX.toFixed(1)}deg) rotateY(${tiltY.toFixed(1)}deg)`;
+            const bob = still || ring.hovered ? 0 : Math.sin(t * 0.9 + ring.bobPhase) * 4; // лёгкое покачивание
+            ring.element.style.transform = `translate3d(${ring.x.toFixed(1)}px, ${(ring.y + bob).toFixed(1)}px, 0)`;
         }
     },
-    // END SECTION 3
+    // END SECTION 4
 
-    // BEGIN SECTION 4 — подсветка играющего трека
+    // BEGIN SECTION 5 — подсветка играющего трека
     syncLava(isPaused, currentTrackIndex) {
         ringsData.forEach(ring => {
             const active = !isPaused && ring.trackIndex === currentTrackIndex;
@@ -213,5 +272,5 @@ export const backgroundRings = {
             ring.element.setAttribute('aria-pressed', String(active));
         });
     }
-    // END SECTION 4
+    // END SECTION 5
 };

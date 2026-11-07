@@ -1,13 +1,14 @@
 // ФАЙЛ: js/main.js
-// НАЗНАЧЕНИЕ: связывает плеер с тремя группами колец: олимпийская эмблема (треки 1–5),
-// летающие кольца (6–15) и медальная карусель (16–20); Зойч запускает и останавливает музыку.
+// НАЗНАЧЕНИЕ: связывает плеер с кольцами: олимпийская эмблема (треки 1–5) и пятнадцать колец, которые
+// плавают по экрану (6–20); Зойч запускает и останавливает музыку.
 import {audioPlayer} from './modules/audioPlayer.js';
 import {uiController} from './modules/uiController.js';
 import {backgroundRings} from './modules/backgroundRings.js';
-import {medalCarousel} from './modules/medalCarousel.js';
+import {paintEmblem} from './modules/ringArt.js';
 import {beatPulse} from './modules/beatPulse.js';
 
 audioPlayer.init();
+paintEmblem();
 beatPulse.init();
 
 // Подсветка всех колец следует за реальным состоянием плеера, даже если старое play() завершилось позднее
@@ -16,7 +17,6 @@ const syncPlayerVisuals = () => {
     const index = audioPlayer.getCurrentIndex();
     uiController.syncLava(paused, index);
     backgroundRings.syncLava(paused, index);
-    medalCarousel.syncLava(paused, index);
     const status = audioPlayer.getPlaybackStatus?.();
     const mascot = document.getElementById('zoich');
     if (mascot) {
@@ -45,7 +45,6 @@ const handlePlayTrack = (index) => {
 };
 
 backgroundRings.init(handlePlayTrack);
-medalCarousel.init(handlePlayTrack);
 uiController.bindRingClicks(handlePlayTrack);
 
 // Зойч — общий старт/стоп текущего трека
