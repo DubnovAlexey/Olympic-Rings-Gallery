@@ -1,6 +1,6 @@
 # Olympic Rings Gallery
 
-[English](#english) · [Русский](#russian) · [עברית](#hebrew)
+[English](#english) · [Русский](#русский) · [עברית](#עברית)
 
 <a name="english"></a>
 

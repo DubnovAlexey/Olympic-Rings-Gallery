@@ -15,6 +15,7 @@
        frame. js/modules/beat.js reads --beat and gives every element a --beat-delay, so they all beat together. */
     --beat: 1.3s;
     --beat-ease: cubic-bezier(.37, 0, .63, 1);   /* a sine wave: no sharp start or stop at the turns */
+    --beat-delay: 0s;                            /* default; beat.js writes each pulsing element its own shift */
     --night-1: #050914;
     --night-2: #0a1733;
     --night-3: #0e3b4a;
