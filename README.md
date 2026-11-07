@@ -32,17 +32,30 @@ Keyboard controls: use Tab to reach a ring or the mascot, then Enter or Space to
 
 The sequential playlist includes all **20 local audio files** and loops after the final track. Every track has its own ring: the emblem holds tracks 1–5, the floating rings 6–20.
 
-Tracks in the playlist include:
+Every track and its ring (names come from the files' own tags and names; the missing ones will be added):
 
-- Röyksopp & Robyn — "Monument"
-- Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix)
-- Patrick Swayze — "She's Like the Wind"
-- Stan Kolev — "Here in the Now"
-- Bleu Soleil, Luiza — "Soleil Bleu"
-- CamelPhat & Elderbrook — "Cola" (ZHU Remix)
-- Pendulum — "Hold Your Colour"
-- Billy Idol — "Eyes Without a Face"
-- Chris Rea — "The Blue Cafe"
+| # | Ring | Track |
+|---|---|---|
+| 1 | Emblem · blue | Röyksopp & Robyn — "Monument" |
+| 2 | Emblem · black | Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix) |
+| 3 | Emblem · yellow | Patrick Swayze — "She's Like the Wind" |
+| 4 | Emblem · red | Stan Kolev — "Here in the Now" |
+| 5 | Emblem · green | Chris Everett — "Cuba" (Chill Lounge version) |
+| 6 | Floating · blue | Bleu Soleil, Luiza — "Soleil Bleu" |
+| 7 | Floating · black | Bob Moses, ZHU — "Desire" (Vintage Culture & Kiko Franco remix) |
+| 8 | Floating · red | *title to be added* |
+| 9 | Floating · yellow | CamelPhat & Elderbrook — "Cola" (ZHU Remix) |
+| 10 | Floating · green | *title to be added* |
+| 11 | Floating · blue | Pendulum — "Hold Your Colour" |
+| 12 | Floating · black | *title to be added* |
+| 13 | Floating · red | Billy Idol — "Eyes Without a Face" |
+| 14 | Floating · yellow | Radiohead — "Everything in Its Right Place" |
+| 15 | Floating · green | Chris Rea — "The Blue Cafe" |
+| 16 | Gold | Cigarettes After Sex — "Nothing’s Gonna Hurt You Baby" |
+| 17 | Silver | Moby — "I Like It" |
+| 18 | Bronze | 7Б — "Молодые ветра" |
+| 19 | Ice | Chris Rea — "I Just Wanna Be with You" |
+| 20 | Flame | Leonard Cohen — "I'm Your Man" |
 
 The music belongs to its authors and is used only in this non-commercial study project. If you hold the rights to a track and want it removed, please open an issue and I will remove it.
 
@@ -94,17 +107,30 @@ These are proposals, not currently implemented features.
 
 Последовательный плейлист включает все **20 локальных аудиофайлов** и после последнего возвращается к началу. У каждого трека своё кольцо: в эмблеме треки 1–5, летающие кольца — 6–20.
 
-В плейлисте, среди прочего:
+Все треки и их кольца (названия взяты из тегов и имён самих файлов; недостающие будут добавлены):
 
-- Röyksopp & Robyn — «Monument»
-- Ninetyfour. & Johanson — «Moonlit Plains» (Third Person Remix)
-- Patrick Swayze — «She's Like the Wind»
-- Stan Kolev — «Here in the Now»
-- Bleu Soleil, Luiza — «Soleil Bleu»
-- CamelPhat & Elderbrook — «Cola» (ZHU Remix)
-- Pendulum — «Hold Your Colour»
-- Billy Idol — «Eyes Without a Face»
-- Chris Rea — «The Blue Cafe»
+| № | Кольцо | Трек |
+|---|---|---|
+| 1 | Эмблема · синее | Röyksopp & Robyn — "Monument" |
+| 2 | Эмблема · чёрное | Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix) |
+| 3 | Эмблема · жёлтое | Patrick Swayze — "She's Like the Wind" |
+| 4 | Эмблема · красное | Stan Kolev — "Here in the Now" |
+| 5 | Эмблема · зелёное | Chris Everett — "Cuba" (Chill Lounge version) |
+| 6 | Летающее · синее | Bleu Soleil, Luiza — "Soleil Bleu" |
+| 7 | Летающее · чёрное | Bob Moses, ZHU — "Desire" (Vintage Culture & Kiko Franco remix) |
+| 8 | Летающее · красное | *название уточняется* |
+| 9 | Летающее · жёлтое | CamelPhat & Elderbrook — "Cola" (ZHU Remix) |
+| 10 | Летающее · зелёное | *название уточняется* |
+| 11 | Летающее · синее | Pendulum — "Hold Your Colour" |
+| 12 | Летающее · чёрное | *название уточняется* |
+| 13 | Летающее · красное | Billy Idol — "Eyes Without a Face" |
+| 14 | Летающее · жёлтое | Radiohead — "Everything in Its Right Place" |
+| 15 | Летающее · зелёное | Chris Rea — "The Blue Cafe" |
+| 16 | Золотое | Cigarettes After Sex — "Nothing’s Gonna Hurt You Baby" |
+| 17 | Серебряное | Moby — "I Like It" |
+| 18 | Бронзовое | 7Б — "Молодые ветра" |
+| 19 | Ледяное | Chris Rea — "I Just Wanna Be with You" |
+| 20 | Огненное | Leonard Cohen — "I'm Your Man" |
 
 Музыка принадлежит авторам и используется только в этом некоммерческом учебном проекте. Если вы правообладатель и хотите, чтобы трек убрали, откройте issue — уберу.
 
@@ -150,17 +176,30 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 רשימת ההשמעה כוללת את כל **20 קובצי השמע המקומיים**, לפי הסדר ובחזרה להתחלה אחרי האחרון. לכל רצועה יש טבעת משלה: בסמל רצועות 1–5, בטבעות המרחפות 6–20.
 
-ברשימת ההשמעה, בין היתר:
+כל הרצועות והטבעות שלהן (השמות נלקחו מהתגיות ומשמות הקבצים; החסרים יתווספו):
 
-- Röyksopp & Robyn — "Monument"
-- Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix)
-- Patrick Swayze — "She's Like the Wind"
-- Stan Kolev — "Here in the Now"
-- Bleu Soleil, Luiza — "Soleil Bleu"
-- CamelPhat & Elderbrook — "Cola" (ZHU Remix)
-- Pendulum — "Hold Your Colour"
-- Billy Idol — "Eyes Without a Face"
-- Chris Rea — "The Blue Cafe"
+| # | טבעת | רצועה |
+|---|---|---|
+| 1 | סמל · כחולה | Röyksopp & Robyn — "Monument" |
+| 2 | סמל · שחורה | Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix) |
+| 3 | סמל · צהובה | Patrick Swayze — "She's Like the Wind" |
+| 4 | סמל · אדומה | Stan Kolev — "Here in the Now" |
+| 5 | סמל · ירוקה | Chris Everett — "Cuba" (Chill Lounge version) |
+| 6 | מרחפת · כחולה | Bleu Soleil, Luiza — "Soleil Bleu" |
+| 7 | מרחפת · שחורה | Bob Moses, ZHU — "Desire" (Vintage Culture & Kiko Franco remix) |
+| 8 | מרחפת · אדומה | *השם יתווסף* |
+| 9 | מרחפת · צהובה | CamelPhat & Elderbrook — "Cola" (ZHU Remix) |
+| 10 | מרחפת · ירוקה | *השם יתווסף* |
+| 11 | מרחפת · כחולה | Pendulum — "Hold Your Colour" |
+| 12 | מרחפת · שחורה | *השם יתווסף* |
+| 13 | מרחפת · אדומה | Billy Idol — "Eyes Without a Face" |
+| 14 | מרחפת · צהובה | Radiohead — "Everything in Its Right Place" |
+| 15 | מרחפת · ירוקה | Chris Rea — "The Blue Cafe" |
+| 16 | זהב | Cigarettes After Sex — "Nothing’s Gonna Hurt You Baby" |
+| 17 | כסף | Moby — "I Like It" |
+| 18 | ארד | 7Б — "Молодые ветра" |
+| 19 | קרח | Chris Rea — "I Just Wanna Be with You" |
+| 20 | אש | Leonard Cohen — "I'm Your Man" |
 
 המוזיקה שייכת ליוצריה ומשמשת רק בפרויקט לימודי לא מסחרי זה. בעלי זכויות שרוצים שרצועה תוסר מוזמנים לפתוח issue ואסיר אותה.
 
