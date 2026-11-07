@@ -21,7 +21,7 @@ function shade(hex, amount) {
 // END SECTION 1
 
 // BEGIN SECTION 2 — рисунок одного кольца
-// strokeShare — толщина обода как доля диаметра (эмблема 0.05, летающие кольца 0.09)
+// strokeShare — толщина обода как доля диаметра (эмблема 0.075, летающие кольца 0.09)
 export function ringSvg(colour, strokeShare) {
     const base = BASE[colour] || '#888888';
     const id = `ring-art-${uid++}`;
@@ -63,12 +63,12 @@ const WEAVE = {
 export function paintEmblem() {
     document.querySelectorAll('.rings-wrapper .ring').forEach(ring => {
         const colour = ['blue', 'black', 'red', 'yellow', 'green'].find(name => ring.classList.contains(name));
-        paintRing(ring, colour, 0.05);
+        paintRing(ring, colour, 0.075);
         (WEAVE[colour] || []).forEach(clip => {
             const piece = document.createElement('span');
             piece.className = 'weave';
             piece.style.clipPath = clip;
-            piece.appendChild(ringSvg(colour, 0.05));
+            piece.appendChild(ringSvg(colour, 0.075));
             ring.appendChild(piece);
         });
     });

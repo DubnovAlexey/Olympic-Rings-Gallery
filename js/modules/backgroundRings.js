@@ -3,7 +3,8 @@
 // и отскакивают друг от друга.
 // РАЗДЕЛЫ: 1 настройки и алфавиты; 2 кометы; 3 создание колец; 4 движение и столкновения; 5 подсветка трека.
 // Десять колец олимпийских цветов (по два каждого) и пять медальных: золото, серебро, бронза, лёд, огонь.
-// Все кольца чёткие и полноцветные, лежат поверх страницы и нажимаются в любой момент. Наведённое кольцо
+// Все кольца чёткие и полноцветные, лежат поверх страницы и нажимаются в любой момент. Центр с Зойчем и эмблемой
+// для них — стенка: от неё кольца отскакивают, поэтому эмблему ничто не закрывает. Наведённое кольцо
 // останавливается и чуть увеличивается, чтобы по нему было легко попасть. Столкновения упругие, как у бильярдных
 // шаров: лёгкое кольцо отлетает сильнее тяжёлого. Движение считается по прошедшему времени и пишется только
 // в transform. На скрытой вкладке движение стоит, при «уменьшить анимацию» кольца неподвижны.
@@ -19,8 +20,8 @@ const RINGS = [
     'gold', 'silver', 'bronze', 'ice', 'flame'
 ];
 const MEDAL_NAMES = {gold: 'Gold ring', silver: 'Silver ring', bronze: 'Bronze ring', ice: 'Ice ring', flame: 'Flame ring'};
-// Размер — доля олимпийского кольца в центре: эмблема всегда самая крупная, остальные хорошо видны
-const SIZE_SHARE = [0.48, 0.66];
+// Размер — доля олимпийского кольца в центре: эмблема всегда заметно крупнее, кольца не теснятся
+const SIZE_SHARE = [0.36, 0.52];
 const SPEED = [26, 48]; // пикселей в секунду
 // Диаметр кольца эмблемы на текущем экране (он сам меняется в CSS на телефонах и низких экранах)
 const emblemRing = () => document.querySelector('.rings-wrapper .ring')?.offsetWidth || 200;
@@ -30,6 +31,43 @@ let ringsData = [];
 let frame = 0;
 let last = 0;
 let placedWidth = 0; // ширина экрана, по которой кольца расставлены в последний раз
+// Центр с Зойчем и эмблемой — «стенка»: летающие кольца отскакивают от неё и не закрывают эмблему
+let zone = null;
+function measureZone() {
+    const parts = [document.querySelector('.zoich-wrapper'), document.querySelector('.rings-wrapper')].filter(Boolean);
+    if (!parts.length) { zone = null; return; }
+    const boxes = parts.map(el => el.getBoundingClientRect());
+    const pad = 14;
+    zone = {
+        left: Math.min(...boxes.map(b => b.left)) - pad, right: Math.max(...boxes.map(b => b.right)) + pad,
+        top: Math.min(...boxes.map(b => b.top)) - pad, bottom: Math.max(...boxes.map(b => b.bottom)) + pad
+    };
+}
+
+// Отталкивает кольцо от центральной зоны: ближайшая точка зоны к центру кольца даёт направление отскока
+function bounceOffZone(ring) {
+    if (!zone) return;
+    const r = ring.size / 2, cx = ring.x + r, cy = ring.y + r;
+    const nearX = Math.min(Math.max(cx, zone.left), zone.right), nearY = Math.min(Math.max(cy, zone.top), zone.bottom);
+    let dx = cx - nearX, dy = cy - nearY;
+    let distance = Math.hypot(dx, dy);
+    if (distance >= r) return;
+    if (distance === 0) { // центр кольца внутри зоны — выталкиваем к ближайшему краю
+        const exits = [[cx - zone.left, -1, 0], [zone.right - cx, 1, 0], [cy - zone.top, 0, -1], [zone.bottom - cy, 0, 1]];
+        const [, ex, ey] = exits.sort((a, b) => a[0] - b[0])[0];
+        dx = ex; dy = ey; distance = 1;
+        const shiftX = ex < 0 ? zone.left - r - cx : ex > 0 ? zone.right + r - cx : 0;
+        const shiftY = ey < 0 ? zone.top - r - cy : ey > 0 ? zone.bottom + r - cy : 0;
+        ring.x += shiftX; ring.y += shiftY;
+    } else {
+        const push = r - distance;
+        ring.x += dx / distance * push;
+        ring.y += dy / distance * push;
+    }
+    const nx = dx / distance, ny = dy / distance;
+    const along = ring.vx * nx + ring.vy * ny;
+    if (along < 0) { ring.vx -= 2 * along * nx; ring.vy -= 2 * along * ny; }
+}
 
 // Пары одного цвета — кольца i и i + 5. У каждого из десяти свой «нереальный» алфавит (древние и редкие
 // системы письма), знаки которого ничего не означают. Медальные кольца и так различаются цветом.
@@ -115,6 +153,7 @@ export const backgroundRings = {
         if (!container) return;
         container.replaceChildren();
         ringsData = [];
+        measureZone();
         const base = emblemRing();
         RINGS.forEach((colour, i) => {
             const share = rand(SIZE_SHARE[0], SIZE_SHARE[1]);
@@ -153,6 +192,7 @@ export const backgroundRings = {
         });
         placedWidth = window.innerWidth;
         window.addEventListener('resize', () => {
+            measureZone();
             const size = emblemRing();
             // Страница открылась в свёрнутом окне (ширина почти ноль) — расставляем кольца заново по всему экрану
             const replace = placedWidth < 300 && window.innerWidth >= 300;
@@ -177,9 +217,11 @@ export const backgroundRings = {
     // Случайное место, не налезающее на уже расставленные кольца
     place(data, others = ringsData) {
         const w = window.innerWidth, h = window.innerHeight;
-        for (let attempt = 0; attempt < 40; attempt++) {
+        for (let attempt = 0; attempt < 60; attempt++) {
             data.x = rand(0, Math.max(1, w - data.size));
             data.y = rand(0, Math.max(1, h - data.size));
+            const r = data.size / 2, cx = data.x + r, cy = data.y + r;
+            if (zone && cx + r > zone.left && cx - r < zone.right && cy + r > zone.top && cy - r < zone.bottom) continue;
             const free = others.every(other => {
                 const dx = (data.x + data.size / 2) - (other.x + other.size / 2);
                 const dy = (data.y + data.size / 2) - (other.y + other.size / 2);
@@ -217,6 +259,7 @@ export const backgroundRings = {
             }
         }
         this.collide();
+        for (const ring of ringsData) if (!ring.hovered) bounceOffZone(ring);
         this.render(now);
         frame = requestAnimationFrame(next => this.tick(next));
     },

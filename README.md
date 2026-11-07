@@ -21,7 +21,7 @@ The language links above switch the documentation; they do not translate the exi
 ### How it is built
 
 - Tracks 1–5 — the Olympic emblem (`js/modules/uiController.js`); the rings keep their real weaving.
-- Tracks 6–20 — fifteen rings floating flat across the screen (`js/modules/backgroundRings.js`): two of each Olympic colour plus gold, silver, bronze, ice and flame. They bounce off the edges and off each other like billiard balls; motion is time-based, written only to `transform`, and pauses on a hidden tab.
+- Tracks 6–20 — fifteen rings floating flat across the screen (`js/modules/backgroundRings.js`): two of each Olympic colour plus gold, silver, bronze, ice and flame. They bounce off the edges, off each other like billiard balls and off the centre with Zoich and the emblem, so nothing covers the emblem; motion is time-based, written only to `transform`, and pauses on a hidden tab.
 - In time with the music (`js/modules/beatPulse.js`): Web Audio listens to the bass of the playing track; Zoich and the playing ring jump on strong beats and the fiery glow follows the bass. In silence or without Web Audio the timer-based pulse remains.
 - Same-coloured floating rings each have their own unreal alphabet: now and then a short comet of scrambling glyphs runs once around the ring and disappears. The emblem rings stay the largest on every screen.
 - `js/modules/ringArt.js` draws every ring; `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list; `js/main.js` connects everything. With reduced motion requested, the sky and the rings stay still.
@@ -96,7 +96,7 @@ These are proposals, not currently implemented features.
 ### Как устроено
 
 - Треки 1–5 — олимпийская эмблема (`js/modules/uiController.js`), кольца сохраняют настоящее переплетение.
-- Треки 6–20 — пятнадцать колец, которые плавают по экрану в одной плоскости (`js/modules/backgroundRings.js`): по два каждого олимпийского цвета, а также золото, серебро, бронза, лёд и огонь. Они отскакивают от краёв и друг от друга, как бильярдные шары; движение считается по времени, пишется только в `transform` и стоит на скрытой вкладке.
+- Треки 6–20 — пятнадцать колец, которые плавают по экрану в одной плоскости (`js/modules/backgroundRings.js`): по два каждого олимпийского цвета, а также золото, серебро, бронза, лёд и огонь. Они отскакивают от краёв, друг от друга, как бильярдные шары, и от центра с Зойчем и эмблемой, поэтому эмблему ничто не закрывает; движение считается по времени, пишется только в `transform` и стоит на скрытой вкладке.
 - В такт музыке (`js/modules/beatPulse.js`): Web Audio слушает басы играющего трека, Зойч и играющее кольцо толкаются на сильных долях, огненное свечение следует за басами. В тишине или без Web Audio остаётся пульсация по таймеру.
 - У одноцветных колец свой «нереальный» алфавит: время от времени по ободу пробегает короткая комета из перебирающихся знаков и исчезает. Кольца эмблемы на любом экране остаются самыми крупными.
 - `js/modules/ringArt.js` рисует все кольца; `js/modules/audioPlayer.js` и `js/modules/playlist.js` — воспроизведение и список треков; `js/main.js` соединяет всё вместе. При «уменьшить анимацию» небо и кольца стоят на месте.
@@ -168,7 +168,7 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 לחצו על טבעת כלשהי כדי לנגן את הרצועה שלה, ושוב כדי להשהות; זויץ׳ מפעיל ועוצר את המוזיקה. טבעת מרחפת נעצרת מתחת לעכבר וגדלה מעט, כדי שיהיה קל לפגוע בה. בניווט עם Tab המיקוד מסומן בזוהר עגול; Enter ורווח מנגנים ומשהים.
 
-עקבו מ־`js/main.js` אל `ringArt.js`, `backgroundRings.js`, `beatPulse.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. רצועות 1–5 — הסמל האולימפי, 6–20 — חמש־עשרה טבעות שמרחפות במישור אחד ומתנגשות זו בזו כמו כדורי ביליארד. Web Audio מאזין לבס של הרצועה: זויץ׳ והטבעת המתנגנת קופצים על הפעמות החזקות. לטבעות באותו צבע יש אלפבית „לא אמיתי” משלהן: מדי פעם עובר סביב הטבעת שובל קצר של סימנים מתחלפים ונעלם.
+עקבו מ־`js/main.js` אל `ringArt.js`, `backgroundRings.js`, `beatPulse.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. רצועות 1–5 — הסמל האולימפי, 6–20 — חמש־עשרה טבעות שמרחפות במישור אחד, מתנגשות זו בזו כמו כדורי ביליארד וקופצות לאחור מהמרכז עם זויץ׳ והסמל, כך ששום דבר לא מסתיר את הסמל. Web Audio מאזין לבס של הרצועה: זויץ׳ והטבעת המתנגנת קופצים על הפעמות החזקות. לטבעות באותו צבע יש אלפבית „לא אמיתי” משלהן: מדי פעם עובר סביב הטבעת שובל קצר של סימנים מתחלפים ונעלם.
 
 קישורי השפה למעלה מחליפים את התיעוד, ולא מתרגמים את ממשק ההדגמה הקיים.
 
