@@ -11,6 +11,10 @@
 /* BEGIN SECTION 1 — tokens and page */
 :root {
     --ring: 200px;                      /* Olympic ring diameter; scaled down on small screens */
+    /* The music pulse: one deep, even swell (and the same settle back), shared by Zoich, the rings and the magma
+       frame. js/modules/beat.js reads --beat and gives every element a --beat-delay, so they all beat together. */
+    --beat: 1.3s;
+    --beat-ease: cubic-bezier(.37, 0, .63, 1);   /* a sine wave: no sharp start or stop at the turns */
     --night-1: #050914;
     --night-2: #0a1733;
     --night-3: #0e3b4a;
@@ -197,7 +201,7 @@ body.lava-music-active .sky-glow {
     position: absolute;
     width: var(--ring);
     height: var(--ring);
-    transition: transform .4s ease, box-shadow .8s ease, filter .8s ease;
+    transition: transform .4s ease, scale .7s ease, box-shadow .8s ease, filter .8s ease;
 }
 
 .ring:hover { transform: scale(1.05); }
@@ -240,12 +244,28 @@ body.lava-music-active .sky-glow {
 
 .zoich {
     position: relative;
+    z-index: 1;
     display: block;
     width: clamp(130px, min(22vw, 30vh), 255px);
     height: auto;
     border-radius: 24px;
-    transition: transform .25s ease, filter .4s ease;
+    transition: transform .25s ease, filter .6s ease, scale .6s ease;
     filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .5));
+}
+
+/* The fire around Zoich while music plays: a hot halo behind him, drawn once. Each swell only changes its
+   opacity and size, so the pulse costs the browser almost nothing and never stutters. */
+.zoich-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: -16% -12%;
+    z-index: 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 190, 40, .75), rgba(255, 70, 0, .45) 55%, rgba(255, 30, 0, 0));
+    opacity: 0;
+    transition: opacity .6s ease;
+    pointer-events: none;
+    will-change: opacity, transform;
 }
 
 .zoich-wrapper:hover .zoich { transform: scale(1.08) rotate(-2deg); }
@@ -258,20 +278,26 @@ body.lava-music-active .sky-glow {
     to { filter: drop-shadow(0 0 18px rgba(255, 170, 0, .9)); }
 }
 
+/* A deep, steady pulse: Zoich swells slowly and settles back, the fire behind him flares on every swell.
+   The pulse uses `scale`, the hover uses `transform`; the two add up, so a click under the mouse gives no jump. */
 .zoich.playing {
-    animation: heartbeat 3.1s infinite ease-in-out, zoich-fire 1.2s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 12px #ff4a00) drop-shadow(0 0 26px rgba(255, 170, 0, .7)) brightness(1.2);
+    animation: zoich-breathe var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
+}
+
+body.lava-music-active .zoich-wrapper::after {
+    opacity: .7;   /* the middle of the flare — the halo fades out smoothly when the music stops */
+    animation: zoich-fire var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
+}
+
+@keyframes zoich-breathe {
+    from { scale: 1; }
+    to { scale: 1.16; }
 }
 
 @keyframes zoich-fire {
-    from { filter: drop-shadow(0 0 12px #ff2a00) brightness(1.1); }
-    to { filter: drop-shadow(0 0 28px #ffaa00) brightness(1.3); }
-}
-
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    20% { transform: scale(1.1); }
-    40% { transform: scale(1.02); }
-    60% { transform: scale(1.12); }
+    from { opacity: .35; transform: scale(.9); }
+    to { opacity: 1; transform: scale(1.2); }
 }
 
 .tooltip {
@@ -317,11 +343,12 @@ body.lava-music-active .sky-glow {
    Only the picture grows: the area that catches the mouse stays the same, so the ring does not flicker
    between "under the mouse" and "not under the mouse". */
 .flying-ring .ring-art,
-.flying-ring .ring-ticker { transition: scale .25s ease; }
+.flying-ring .ring-ticker { transition: scale .25s ease, transform .7s ease; }
 .flying-ring:hover .ring-art,
 .flying-ring:hover .ring-ticker { scale: 1.15; }
 
-/* A short comet of scrambling glyphs runs once around the rim now and then (js/modules/backgroundRings.js) */
+/* Glyphs on the rim (js/modules/backgroundRings.js): large, white and bold with a dark outline, so they read
+   clearly on any ring colour. They appear one by one, run one lap and fade out. */
 .ring-ticker {
     position: absolute;
     inset: 0;
@@ -330,18 +357,29 @@ body.lava-music-active .sky-glow {
     overflow: visible;
     pointer-events: none;
     opacity: 0;
-    transition: opacity .35s ease;
+    transition: opacity .3s ease;
 }
 
 .ring-ticker text {
-    font-size: 7.4px;
-    fill: rgba(255, 255, 255, .9);
+    font-size: 10px;
+    font-weight: 700;
+    fill: #fff;
     paint-order: stroke;
-    stroke: rgba(0, 0, 0, .35);
-    stroke-width: .6px;
+    stroke: rgba(0, 0, 0, .6);
+    stroke-width: 1px;
+    opacity: 0;
+    transition: opacity .25s ease;
 }
 
-.flying-ring.ticker-on .ring-ticker { opacity: .8; }
+.ring-ticker text.shown { opacity: 1; }
+.flying-ring.ticker-on .ring-ticker { opacity: 1; }
+.ring-ticker-run { transform-box: view-box; transform-origin: 50% 50%; }
+.ring-ticker-run.lap { animation: ring-ticker-lap 4s ease-in-out; }
+
+@keyframes ring-ticker-lap {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 /* END SECTION 6 */
 
 /* BEGIN SECTION 8 — fiery glow: hover, playing (lava) ring, magma frame and the pulse */
@@ -360,35 +398,54 @@ body.lava-music-active .sky-glow {
     inset: 0;
     border-radius: 50%;
     pointer-events: none;
-    box-shadow: 0 0 35px var(--lava-1), 0 0 70px var(--lava-2), inset 0 0 20px var(--lava-1);
+    box-shadow: 0 0 45px var(--lava-1), 0 0 100px var(--lava-2), inset 0 0 26px var(--lava-1);
     opacity: 0;
     transition: opacity .6s ease;
-    will-change: opacity;
+    will-change: opacity, transform;
 }
 
+/* The playing ring breathes with Zoich: a deep, even swell and settle (a sine wave, no steps), and its fire
+   flares brighter on every swell. The ring's own hover uses `transform`, the pulse uses `scale` — they add up. */
 .ring.lava-active::before,
-.flying-ring.lava-active::before { opacity: 1; }
+.flying-ring.lava-active::before {
+    opacity: .7;   /* the middle of the flare — when the music stops, the glow fades out from here without a flash */
+    animation: fire-flare var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
+}
 
 .ring.lava-active {
     z-index: 10;
     filter: brightness(1.4) saturate(1.4);
-    animation: volcanic-pulse 3s infinite alternate ease-in-out;
+    animation: ring-swell var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
 }
 
 .flying-ring.lava-active { filter: brightness(1.25) saturate(1.2); }
 
-/* The playing floating ring pulses too — its picture breathes, the clickable area stays still */
+/* The playing floating ring: its picture and glow swell, the clickable area stays still.
+   The hover enlarges with `scale`, the pulse with `transform`, so pressing a ring under the mouse gives no jump. */
 .flying-ring.lava-active .ring-art,
-.flying-ring.lava-active .ring-ticker { animation: ring-breathe 1.6s infinite alternate ease-in-out; }
+.flying-ring.lava-active .ring-ticker {
+    animation: ring-swell-big var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
+}
+.flying-ring.lava-active::before { animation-name: fire-flare-big; }
 
-@keyframes volcanic-pulse {
-    from { transform: scale(1.02); }
-    to { transform: scale(1.07); }
+@keyframes ring-swell {
+    from { scale: 1; }
+    to { scale: 1.17; }
 }
 
-@keyframes ring-breathe {
-    from { scale: 1.02; }
-    to { scale: 1.12; }
+@keyframes ring-swell-big {
+    from { transform: scale(1); }
+    to { transform: scale(1.26); }
+}
+
+@keyframes fire-flare {
+    from { opacity: .4; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes fire-flare-big {
+    from { opacity: .4; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.3); }
 }
 
 /* Magma frame: the edges of the screen glow red-orange while music plays. The strongest glow is drawn once;
@@ -404,23 +461,16 @@ body.lava-music-active .sky-glow {
     will-change: opacity;
 }
 
-body.lava-music-active .magma-frame { opacity: 1; animation: magma-breathe 1.5s infinite alternate ease-in-out; }
+body.lava-music-active .magma-frame {
+    opacity: .78;  /* the middle of the breath, so the frame fades out smoothly when the music stops */
+    animation: magma-breathe var(--beat) var(--beat-ease) var(--beat-delay, 0s) infinite alternate backwards;
+}
 
 @keyframes magma-breathe {
     from { opacity: .55; }
     to { opacity: 1; }
 }
 
-/* In time with the music (js/modules/beatPulse.js): the timer pulses keep running, and each strong beat adds
-   a soft kick — Zoich and the playing emblem ring grow a little, the glows and the magma frame flare.
-   --beat and --level are written only to these elements, never to the whole page. */
-/* defaults; js/modules/beatPulse.js writes the live values inline on these elements */
-.zoich, .ring, .flying-ring, .magma-frame { --beat: 0; --level: 0; }
-body.beat-sync .zoich.playing { scale: calc(1 + var(--beat) * .08); }
-body.beat-sync .ring.lava-active { scale: calc(1 + var(--beat) * .05); }
-body.beat-sync .ring.lava-active::before,
-body.beat-sync .flying-ring.lava-active::before { opacity: calc(.75 + var(--level) * .25 + var(--beat) * .25); }
-body.beat-sync.lava-music-active .magma-frame { animation: none; opacity: calc(.55 + var(--level) * .3 + var(--beat) * .3); }
 /* END SECTION 8 */
 
 /* BEGIN SECTION 9 — focus: a round glow instead of the browser's square frame */
@@ -452,7 +502,9 @@ body.beat-sync.lava-music-active .magma-frame { animation: none; opacity: calc(.
 @media (prefers-reduced-motion: reduce) {
     .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active,
     .flying-ring.lava-active .ring-art, .flying-ring.lava-active .ring-ticker, .zoich.loading,
-    body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
+    .ring.lava-active::before, .flying-ring.lava-active::before,
+    body.lava-music-active .sky-glow, .zoich.playing, body.lava-music-active .zoich-wrapper::after { animation: none; }
+    body.lava-music-active .zoich-wrapper::after { opacity: .7; }
     body.lava-music-active .magma-frame { animation: none; opacity: .8; }
     .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }
 }

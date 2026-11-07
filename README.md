@@ -14,7 +14,7 @@ An art page where every ring plays its own track. A play of light flows across t
 
 Press any ring to play its track, press it again to pause; Zoich starts or stops the music. A floating ring stops under the mouse and grows a little, so it is easy to hit. With Tab, focus shows a round glow; Enter or Space plays and pauses.
 
-Follow `js/main.js` into `ringArt.js`, `backgroundRings.js`, `beatPulse.js`, `audioPlayer.js`, `playlist.js` and `uiController.js` under `js/modules/`. These are browser ES modules; serve the folder over HTTP. Audio starts according to browser gesture rules.
+Follow `js/main.js` into `ringArt.js`, `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` and `beat.js` under `js/modules/`. These are browser ES modules; serve the folder over HTTP. Audio starts according to browser gesture rules.
 
 The language links above switch the documentation; they do not translate the existing demo interface.
 
@@ -22,8 +22,8 @@ The language links above switch the documentation; they do not translate the exi
 
 - Tracks 1–5 — the Olympic emblem (`js/modules/uiController.js`); the rings keep their real weaving.
 - Tracks 6–20 — fifteen rings floating flat across the screen (`js/modules/backgroundRings.js`): two of each Olympic colour plus gold, silver, bronze, ice and flame. They bounce off the edges, off each other like billiard balls and off the centre with Zoich and the emblem, so nothing covers the emblem; motion is time-based, written only to `transform`, and pauses on a hidden tab.
-- In time with the music (`js/modules/beatPulse.js`): Web Audio listens to the bass of the playing track; Zoich and the playing ring jump on strong beats and the fiery glow follows the bass. In silence or without Web Audio the timer-based pulse remains.
-- Same-coloured floating rings each have their own unreal alphabet: now and then a short comet of scrambling glyphs runs once around the ring and disappears. The emblem rings stay the largest on every screen.
+- While music plays, Zoich, the playing ring and the magma-glowing screen edges share one deep, steady pulse: a slow sine-wave swell and settle, with the fire around them flaring on every swell. A ring that lights up later joins the same beat at the start of the next wave, and when the music stops everything settles and fades out instead of snapping back (`js/modules/beat.js`).
+- Same-coloured floating rings each have their own unreal alphabet: every 30–40 seconds its glyphs type themselves in around the whole rim, run one lap and fade out one by one. The glyphs are large, white and outlined, so they read on any ring colour. The emblem rings stay the largest on every screen.
 - `js/modules/ringArt.js` draws every ring; `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list; `js/main.js` connects everything. With reduced motion requested, the sky and the rings stay still.
 
 Keyboard controls: use Tab to reach a ring or the mascot, then Enter or Space to play/pause. The ring buttons expose their current state to assistive technology.
@@ -89,7 +89,7 @@ These are proposals, not currently implemented features.
 
 Нажмите на любое кольцо — заиграет его трек, повторное нажатие ставит паузу; Зойч включает и выключает музыку. Летающее кольцо под мышью останавливается и немного увеличивается, чтобы по нему было легко попасть. При навигации через Tab фокус показан круглым свечением; Enter и пробел запускают и останавливают трек.
 
-Проследите `js/main.js` к `ringArt.js`, `backgroundRings.js`, `beatPulse.js`, `audioPlayer.js`, `playlist.js` и `uiController.js` в `js/modules/`. Это браузерные ES-модули: папку нужно отдавать по HTTP. Звук включается по правилам жеста браузера.
+Проследите `js/main.js` к `ringArt.js`, `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` и `beat.js` в `js/modules/`. Это браузерные ES-модули: папку нужно отдавать по HTTP. Звук включается по правилам жеста браузера.
 
 Языковые ссылки выше переключают документацию, а не переводят существующий интерфейс демо.
 
@@ -97,8 +97,8 @@ These are proposals, not currently implemented features.
 
 - Треки 1–5 — олимпийская эмблема (`js/modules/uiController.js`), кольца сохраняют настоящее переплетение.
 - Треки 6–20 — пятнадцать колец, которые плавают по экрану в одной плоскости (`js/modules/backgroundRings.js`): по два каждого олимпийского цвета, а также золото, серебро, бронза, лёд и огонь. Они отскакивают от краёв, друг от друга, как бильярдные шары, и от центра с Зойчем и эмблемой, поэтому эмблему ничто не закрывает; движение считается по времени, пишется только в `transform` и стоит на скрытой вкладке.
-- В такт музыке (`js/modules/beatPulse.js`): Web Audio слушает басы играющего трека, Зойч и играющее кольцо толкаются на сильных долях, огненное свечение следует за басами. В тишине или без Web Audio остаётся пульсация по таймеру.
-- У одноцветных колец свой «нереальный» алфавит: время от времени по ободу пробегает короткая комета из перебирающихся знаков и исчезает. Кольца эмблемы на любом экране остаются самыми крупными.
+- Пока играет музыка, Зойч, играющее кольцо и края экрана (они светятся, как магма) дышат одной глубокой ровной пульсацией: медленно, по синусоиде, набухают и опадают, а огонь вокруг них разгорается на каждом подъёме. Кольцо, которое загорелось позже, встраивается в тот же такт с начала следующей волны; когда музыка останавливается, всё плавно опускается и гаснет, а не обрывается (`js/modules/beat.js`).
+- У одноцветных колец свой «нереальный» алфавит: раз в 30–40 секунд его знаки набираются по всему ободу, делают один оборот и гаснут по одному. Знаки крупные, белые, с тёмной обводкой — читаются на кольце любого цвета. Кольца эмблемы на любом экране остаются самыми крупными.
 - `js/modules/ringArt.js` рисует все кольца; `js/modules/audioPlayer.js` и `js/modules/playlist.js` — воспроизведение и список треков; `js/main.js` соединяет всё вместе. При «уменьшить анимацию» небо и кольца стоят на месте.
 
 Управление с клавиатуры: Tab выбирает кольцо или талисман, Enter и пробел запускают или останавливают трек. Состояние колец доступно программам чтения с экрана.
@@ -168,7 +168,7 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 לחצו על טבעת כלשהי כדי לנגן את הרצועה שלה, ושוב כדי להשהות; זויץ׳ מפעיל ועוצר את המוזיקה. טבעת מרחפת נעצרת מתחת לעכבר וגדלה מעט, כדי שיהיה קל לפגוע בה. בניווט עם Tab המיקוד מסומן בזוהר עגול; Enter ורווח מנגנים ומשהים.
 
-עקבו מ־`js/main.js` אל `ringArt.js`, `backgroundRings.js`, `beatPulse.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. רצועות 1–5 — הסמל האולימפי, 6–20 — חמש־עשרה טבעות שמרחפות במישור אחד, מתנגשות זו בזו כמו כדורי ביליארד וקופצות לאחור מהמרכז עם זויץ׳ והסמל, כך ששום דבר לא מסתיר את הסמל. Web Audio מאזין לבס של הרצועה: זויץ׳ והטבעת המתנגנת קופצים על הפעמות החזקות. לטבעות באותו צבע יש אלפבית „לא אמיתי” משלהן: מדי פעם עובר סביב הטבעת שובל קצר של סימנים מתחלפים ונעלם.
+עקבו מ־`js/main.js` אל `ringArt.js`, `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js`, `beat.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. רצועות 1–5 — הסמל האולימפי, 6–20 — חמש־עשרה טבעות שמרחפות במישור אחד, מתנגשות זו בזו כמו כדורי ביליארד וקופצות לאחור מהמרכז עם זויץ׳ והסמל, כך ששום דבר לא מסתיר את הסמל. בזמן שהמוזיקה מתנגנת, זויץ׳, הטבעת המתנגנת ושולי המסך הזוהרים כמו מאגמה פועמים בדופק אחד עמוק ואחיד: מתנפחים ושוקעים לאט, כמו גל סינוס, והאש סביבם מתלקחת בכל התנפחות. טבעת שנדלקת מאוחר יותר מצטרפת לאותו קצב בתחילת הגל הבא, וכשהמוזיקה נעצרת הכול שוקע ודועך בהדרגה במקום להיקטע (`js/modules/beat.js`). לטבעות באותו צבע יש אלפבית „לא אמיתי” משלהן: כל 30–40 שניות הסימנים שלו מוקלדים סביב כל השפה, מקיפים אותה פעם אחת ונכבים אחד אחרי השני. הסימנים גדולים, לבנים ומודגשים בקו מתאר, ולכן קריאים על טבעת בכל צבע.
 
 קישורי השפה למעלה מחליפים את התיעוד, ולא מתרגמים את ממשק ההדגמה הקיים.
 

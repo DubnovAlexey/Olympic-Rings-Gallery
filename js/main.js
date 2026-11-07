@@ -5,11 +5,9 @@ import {audioPlayer} from './modules/audioPlayer.js';
 import {uiController} from './modules/uiController.js';
 import {backgroundRings} from './modules/backgroundRings.js';
 import {paintEmblem} from './modules/ringArt.js';
-import {beatPulse} from './modules/beatPulse.js';
 
 audioPlayer.init();
 paintEmblem();
-beatPulse.init();
 
 // Подсветка всех колец следует за реальным состоянием плеера, даже если старое play() завершилось позднее
 const syncPlayerVisuals = () => {
@@ -40,7 +38,6 @@ const loading = () => audioPlayer.getPlaybackStatus?.() === 'loading';
 // Любое кольцо: свой трек играет — пауза, иначе включаем этот трек.
 // Пока свой трек ещё грузится, повторное нажатие ничего не обрывает.
 const handlePlayTrack = (index) => {
-    beatPulse.wake(); // пульсация в такт: звук через Web Audio разрешён только в жесте пользователя
     const isCurrent = audioPlayer.getCurrentIndex() === index;
     if (isCurrent && loading()) return;
     if (isCurrent && !audioPlayer.isPaused()) {
@@ -56,7 +53,6 @@ uiController.bindRingClicks(handlePlayTrack);
 
 // Зойч — общий старт/стоп текущего трека
 uiController.bindZoichClick(() => {
-    beatPulse.wake();
     if (loading()) return; // музыка уже запускается — второй щелчок её не обрывает
     if (audioPlayer.isPaused()) {
         audioPlayer.play().then(syncPlayerVisuals).catch(reportPlayError('Browser blocked Zoich interaction:'));

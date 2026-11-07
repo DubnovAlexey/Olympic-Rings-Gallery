@@ -1,15 +1,16 @@
 // ФАЙЛ: js/modules/backgroundRings.js
 // НАЗНАЧЕНИЕ: пятнадцать колец, которые хаотично плавают по экрану в одной плоскости (треки 6–20)
 // и отскакивают друг от друга.
-// РАЗДЕЛЫ: 1 настройки и алфавиты; 2 кометы; 3 создание колец; 4 движение и столкновения; 5 подсветка трека.
+// РАЗДЕЛЫ: 1 настройки и алфавиты; 2 бегущие знаки на ободе; 3 создание колец; 4 движение и столкновения; 5 подсветка трека.
 // Десять колец олимпийских цветов (по два каждого) и пять медальных: золото, серебро, бронза, лёд, огонь.
 // Все кольца чёткие и полноцветные, лежат поверх страницы и нажимаются в любой момент. Центр с Зойчем и эмблемой
 // для них — стенка: от неё кольца отскакивают, поэтому эмблему ничто не закрывает. Наведённое кольцо
 // останавливается и чуть увеличивается, чтобы по нему было легко попасть. Столкновения упругие, как у бильярдных
 // шаров: лёгкое кольцо отлетает сильнее тяжёлого. Движение считается по прошедшему времени и пишется только
 // в transform. На скрытой вкладке движение стоит, при «уменьшить анимацию» кольца неподвижны.
-// У одноцветных колец свой «инопланетный» алфавит: время от времени по ободу пробегает короткая комета из его знаков.
+// У одноцветных колец свой «инопланетный» алфавит: раз в 30–40 секунд его знаки набираются по ободу, делают оборот и гаснут.
 import {paintRing} from './ringArt.js';
+import {fadeOut, joinBeat, settle} from './beat.js';
 
 // BEGIN SECTION 1 — настройки и алфавиты
 const container = document.querySelector('.flying-rings-container');
@@ -83,67 +84,73 @@ const ALPHABETS = [
     {chars: 'ሀሁሂሃሄህሆለሉሊላሌልሎሐሑሒሓሔሕሖ', font: 'Nyala, Ebrima, "Noto Sans Ethiopic", serif'},
     {chars: '⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠿⡇⢸⣿', font: '"Segoe UI Symbol", "Noto Sans Symbols 2", monospace'}
 ];
-const COMET_LENGTH = 6;      // знаков в пробегающей «комете»
-const COMET_RUN_MS = 2600;   // за сколько комета обегает кольцо
+const GLYPHS = 14;            // знаков по кругу обода
+const TICKER_EVERY = [30000, 40000]; // как часто у каждого кольца бегут знаки
 const randomGlyph = (glyphs) => glyphs[Math.floor(Math.random() * glyphs.length)];
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // END SECTION 1
 
-// BEGIN SECTION 2 — кометы
-// Короткая «комета» из нескольких знаков на ободе кольца (SVG textPath). Голова яркая, хвост гаснет.
+// BEGIN SECTION 2 — бегущие знаки на ободе
+// Знаки стоят каждый на своём месте по кругу (без сдвига соседей при переборе): сначала они по одному
+// «набираются» по всему ободу, перебирая случайные символы, потом надпись делает один оборот и гаснет по одному.
 function engraving(i) {
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('viewBox', '0 0 100 100');
     svg.setAttribute('aria-hidden', 'true');
     svg.classList.add('ring-ticker');
-    const path = document.createElementNS(SVG_NS, 'path');
-    path.id = `ring-ticker-path-${i}`;
-    path.setAttribute('d', 'M50 5 a45 45 0 1 1 -0.01 0'); // линия знаков чуть внутри: сами знаки ложатся на обод
-    path.setAttribute('fill', 'none');
-    const text = document.createElementNS(SVG_NS, 'text');
-    text.style.fontFamily = ALPHABETS[i].font;
-    const textPath = document.createElementNS(SVG_NS, 'textPath');
-    textPath.setAttribute('href', `#${path.id}`);
-    for (let k = 0; k < COMET_LENGTH; k++) {
-        const glyph = document.createElementNS(SVG_NS, 'tspan');
-        glyph.setAttribute('fill-opacity', String(((k + 1) / COMET_LENGTH).toFixed(2))); // хвост → голова
-        textPath.appendChild(glyph);
+    const group = document.createElementNS(SVG_NS, 'g');
+    group.classList.add('ring-ticker-run');
+    group.style.fontFamily = ALPHABETS[i].font;
+    for (let k = 0; k < GLYPHS; k++) {
+        const glyph = document.createElementNS(SVG_NS, 'text');
+        glyph.setAttribute('x', '50');
+        glyph.setAttribute('y', '10.5');            // на середине широкого обода
+        glyph.setAttribute('text-anchor', 'middle');
+        glyph.setAttribute('transform', `rotate(${(360 / GLYPHS) * k} 50 50)`);
+        group.appendChild(glyph);
     }
-    text.appendChild(textPath);
-    svg.append(path, text);
+    svg.appendChild(group);
     return svg;
 }
 
-// Пробег: комета обегает кольцо, на бегу её знаки перебираются, в конце она исчезает
-function runComet(ring, alphabet) {
-    const textPath = ring.querySelector('textPath');
+function runTicker(ring, alphabet) {
     const glyphs = Array.from(alphabet);
-    const spans = [...textPath.children];
-    const begin = performance.now();
-    let lastSwap = 0;
+    const cells = [...ring.querySelectorAll('.ring-ticker text')];
+    const group = ring.querySelector('.ring-ticker-run');
+    const timers = [];
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    cells.forEach(cell => { cell.textContent = ''; cell.classList.remove('shown'); });
     ring.classList.add('ticker-on');
-    const step = (now) => {
-        const progress = (now - begin) / COMET_RUN_MS;
-        if (progress >= 1 || document.hidden) {
-            ring.classList.remove('ticker-on');
-            return;
-        }
-        textPath.setAttribute('startOffset', `${(progress * 100).toFixed(2)}%`);
-        if (now - lastSwap > 90) {           // перебор знаков, как бегущая строка
-            lastSwap = now;
-            spans.forEach(span => { span.textContent = randomGlyph(glyphs); });
-        }
-        requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    // 1. набор по кругу: каждый знак перебирает пару символов и встаёт на место
+    cells.forEach((cell, k) => {
+        later(() => {
+            cell.classList.add('shown');
+            for (let s = 0; s < 3; s++) later(() => { cell.textContent = randomGlyph(glyphs); }, s * 90);
+        }, 200 + k * 140);
+    });
+    const typed = 200 + cells.length * 140 + 300;
+    // 2. один оборот по ободу, по пути пара знаков время от времени меняется
+    later(() => group.classList.add('lap'), typed);
+    for (let t = typed; t < typed + 4000; t += 450) later(() => { cells[Math.floor(Math.random() * cells.length)].textContent = randomGlyph(glyphs); }, t);
+    // 3. гаснут по одному
+    const erase = typed + 4200;
+    cells.forEach((cell, k) => later(() => cell.classList.remove('shown'), erase + k * 90));
+    later(() => { ring.classList.remove('ticker-on'); group.classList.remove('lap'); }, erase + cells.length * 90 + 500);
 }
 
-// Время от времени, у каждого кольца в своё время
+// У каждого кольца — в своё время, раз в 30–40 секунд
 function scheduleTicker(ring, alphabet) {
     setTimeout(() => {
-        if (!document.hidden && !motion.matches) runComet(ring, alphabet);
+        if (!document.hidden && !motion.matches) runTicker(ring, alphabet);
         scheduleTicker(ring, alphabet);
-    }, rand(8000, 22000));
+    }, rand(TICKER_EVERY[0], TICKER_EVERY[1]));
+}
+// first run comes sooner, so the glyphs are noticed
+function firstTicker(ring, alphabet) {
+    setTimeout(() => {
+        if (!document.hidden && !motion.matches) runTicker(ring, alphabet);
+        scheduleTicker(ring, alphabet);
+    }, rand(3000, 25000));
 }
 // END SECTION 2
 
@@ -183,10 +190,10 @@ export const backgroundRings = {
             });
             ring.addEventListener('focus', () => { data.hovered = true; });
             ring.addEventListener('blur', () => { data.hovered = false; });
-            paintRing(ring, colour, 0.09); // объёмный обод в SVG
+            paintRing(ring, colour, 0.13); // объёмный широкий обод в SVG — на нём хорошо видны бегущие знаки
             if (i < ALPHABETS.length) {
                 ring.appendChild(engraving(i));
-                scheduleTicker(ring, ALPHABETS[i].chars);
+                firstTicker(ring, ALPHABETS[i].chars);
             }
             container.appendChild(ring);
             this.place(data);
@@ -318,6 +325,13 @@ export const backgroundRings = {
     syncLava(isPaused, currentTrackIndex) {
         ringsData.forEach(ring => {
             const active = !isPaused && ring.trackIndex === currentTrackIndex;
+            const wasActive = ring.element.classList.contains('lava-active');
+            if (active && !wasActive) joinBeat(ring.element); // в общий ритм с Зойчем
+            if (!active && wasActive) {                       // плавно опускается, а не падает в обычный размер
+                settle(ring.element.querySelector('.ring-art'), 'transform');
+                settle(ring.element.querySelector('.ring-ticker'), 'transform');
+                fadeOut(ring.element, '::before');
+            }
             ring.element.classList.toggle('lava-active', active);
             ring.element.setAttribute('aria-pressed', String(active));
         });

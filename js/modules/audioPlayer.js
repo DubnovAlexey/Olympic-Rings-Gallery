@@ -106,10 +106,12 @@ export const audioPlayer = {
         wantedPlaying = true;
         if (currentTrackIndex !== index || !audio.src) this.loadTrack(index);
         const generation = playbackGeneration;
-        setPlaybackStatus('loading');
         let attempt;
         try { attempt = audio.play(); }
         catch (error) { attempt = Promise.reject(error); }
+        // Статус — уже после play(): смена src на миг ставит паузу, и картинка не должна решить, что музыка
+        // остановилась (иначе Зойч и кольца на каждом новом треке начинали бы пульсацию заново, рывком)
+        setPlaybackStatus('loading');
         return Promise.resolve(attempt).then(() => {
             if (generation !== playbackGeneration) return;
             if (!wantedPlaying) { audio.pause(); return; }

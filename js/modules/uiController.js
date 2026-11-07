@@ -1,32 +1,35 @@
+import {fadeOut, joinBeat, settle, stopBeat} from './beat.js';
+
 const icon = document.getElementById('zoich');
 const rings = document.querySelectorAll('.ring');
 const body = document.body;
 
 export const uiController = {
-    // Подсветка активных элементов в зависимости от состояния плеера
+    // Подсветка активных элементов в зависимости от состояния плеера.
+    // Класс меняется только у тех, чьё состояние правда изменилось: уже пульсирующее кольцо не перезапускается.
     syncLava(isPaused, currentTrackIndex) {
-        // Сначала полностью очищаем лаву со всех олимпийских колец
         rings.forEach((ring, index) => {
-            ring.classList.remove('lava-active');
+            // Трек 1–5 — светится своё олимпийское кольцо; треки других колец зажигают всю эмблему
+            const lit = !isPaused && (currentTrackIndex >= 5 || currentTrackIndex === index);
+            const wasLit = ring.classList.contains('lava-active');
+            if (lit && !wasLit) joinBeat(ring);
+            if (!lit && wasLit) { settle(ring, 'scale'); fadeOut(ring, '::before'); }
+            ring.classList.toggle('lava-active', lit);
             ring.setAttribute('aria-pressed', String(!isPaused && currentTrackIndex === index));
         });
 
-        if (!isPaused) {
-            // Трек 1–5 — светится своё олимпийское кольцо; треки других колец зажигают всю эмблему
-            if (currentTrackIndex < 5) {
-                if (rings[currentTrackIndex]) {
-                    rings[currentTrackIndex].classList.add('lava-active');
-                }
-            } else {
-                rings.forEach(ring => ring.classList.add('lava-active'));
-            }
-
-            icon.classList.add('playing');
-            body.classList.add('lava-music-active');
-        } else {
-            icon.classList.remove('playing');
-            body.classList.remove('lava-music-active');
+        if (!isPaused && !icon.classList.contains('playing')) {
+            joinBeat(icon.parentElement);                   // Зойч и огонь вокруг него
+            joinBeat(document.querySelector('.magma-frame')); // свечение по краям экрана
         }
+        if (isPaused && icon.classList.contains('playing')) {      // музыка остановилась: всё плавно затихает
+            settle(icon, 'scale');
+            fadeOut(icon.parentElement, '::after');                 // огонь вокруг Зойча
+            fadeOut(document.querySelector('.magma-frame'));        // магма по краям экрана
+            stopBeat();
+        }
+        icon.classList.toggle('playing', !isPaused);
+        body.classList.toggle('lava-music-active', !isPaused);
     },
 
     // Регистрация кликов по кольцам
