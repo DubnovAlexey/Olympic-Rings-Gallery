@@ -23,6 +23,8 @@ The language links above switch the documentation; they do not translate the exi
 - Tracks 1–5 — the Olympic emblem (`js/modules/uiController.js`); the rings keep their real weaving.
 - Tracks 6–15 — ten drifting rings on far, middle and near layers (`js/modules/backgroundRings.js`). Motion is time-based, written only to `transform`, follows the mouse with parallax and pauses on a hidden tab.
 - Tracks 16–20 — the medal carousel: gold, silver, bronze, ice and flame (`js/modules/medalCarousel.js`).
+- In time with the music (`js/modules/beatPulse.js`): Web Audio listens to the bass of the playing track; Zoich and the playing ring jump on strong beats and the fiery glow follows the bass. In silence or without Web Audio the timer-based pulse remains.
+- Same-coloured drifting rings each have their own unreal alphabet: now and then a short comet of scrambling glyphs runs once around the ring and disappears. The emblem rings stay the largest on every screen.
 - `js/modules/audioPlayer.js` and `js/modules/playlist.js` — playback and the track list; `js/main.js` connects everything. With reduced motion requested, the sky, the rings and the carousel stay still.
 
 Keyboard controls: use Tab to reach a ring or the mascot, then Enter or Space to play/pause. The ring buttons expose their current state to assistive technology.
@@ -84,6 +86,8 @@ These are proposals, not currently implemented features.
 - Треки 1–5 — олимпийская эмблема (`js/modules/uiController.js`), кольца сохраняют настоящее переплетение.
 - Треки 6–15 — десять летающих колец на дальнем, среднем и ближнем слоях (`js/modules/backgroundRings.js`). Движение считается по времени, пишется только в `transform`, следует за мышью с параллаксом и останавливается на скрытой вкладке.
 - Треки 16–20 — медальная карусель: золото, серебро, бронза, лёд и огонь (`js/modules/medalCarousel.js`).
+- В такт музыке (`js/modules/beatPulse.js`): Web Audio слушает басы играющего трека, Зойч и играющее кольцо толкаются на сильных долях, огненное свечение следует за басами. В тишине или без Web Audio остаётся пульсация по таймеру.
+- У одноцветных летающих колец свой «нереальный» алфавит: время от времени по ободу пробегает короткая комета из перебирающихся знаков и исчезает. Кольца эмблемы на любом экране остаются самыми крупными.
 - `js/modules/audioPlayer.js` и `js/modules/playlist.js` — воспроизведение и список треков; `js/main.js` соединяет всё вместе. При «уменьшить анимацию» небо, кольца и карусель стоят на месте.
 
 Управление с клавиатуры: Tab выбирает кольцо или талисман, Enter и пробел запускают или останавливают трек. Состояние колец доступно программам чтения с экрана.
@@ -140,7 +144,7 @@ HTML5 · CSS3-анимации · модули JavaScript (ES modules) · `<audi
 
 לחצו על טבעת כלשהי כדי לנגן את הרצועה שלה, ושוב כדי להשהות; זויץ׳ מפעיל ועוצר את המוזיקה. את קרוסלת המדליות מסובבים בחצים, בהחלקה או במקשי ←/→: כל טבעת נעצרת מלפנים לכמה שניות, ורצועה מהקרוסלה שהגיע תורה מסובבת את הטבעת שלה קדימה מעצמה. הזיזו את העכבר — הטבעות המרחפות זזות לפי העומק. בניווט עם Tab המיקוד מסומן בזוהר עגול; Enter ורווח מנגנים ומשהים.
 
-עקבו מ־`js/main.js` אל `backgroundRings.js`, `medalCarousel.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. שמע מתחיל בהתאם לכללי המחווה של הדפדפן. רצועות 1–5 — הסמל האולימפי, 6–15 — עשר טבעות מרחפות בשלוש שכבות עומק, 16–20 — קרוסלת המדליות: זהב, כסף, ארד, קרח ואש. כשמבוקשת הפחתת תנועה, השמיים, הטבעות והקרוסלה נשארים במקום.
+עקבו מ־`js/main.js` אל `backgroundRings.js`, `medalCarousel.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` בתוך `js/modules/`. אלה מודולי ES בדפדפן, ולכן יש להגיש את התיקייה ב־HTTP. שמע מתחיל בהתאם לכללי המחווה של הדפדפן. רצועות 1–5 — הסמל האולימפי, 6–15 — עשר טבעות מרחפות בשלוש שכבות עומק, 16–20 — קרוסלת המדליות: זהב, כסף, ארד, קרח ואש. Web Audio מאזין לבס של הרצועה: זויץ׳ והטבעת המתנגנת קופצים על הפעמות החזקות. לטבעות מרחפות באותו צבע יש אלפבית „לא אמיתי” משלהן: מדי פעם עוברת סביב הטבעת שובל קצר של סימנים מתחלפים ונעלם. כשמבוקשת הפחתת תנועה, השמיים, הטבעות והקרוסלה נשארים במקום.
 
 קישורי השפה למעלה מחליפים את התיעוד, ולא מתרגמים את ממשק ההדגמה הקיים.
 

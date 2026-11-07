@@ -5,8 +5,10 @@ import {audioPlayer} from './modules/audioPlayer.js';
 import {uiController} from './modules/uiController.js';
 import {backgroundRings} from './modules/backgroundRings.js';
 import {medalCarousel} from './modules/medalCarousel.js';
+import {beatPulse} from './modules/beatPulse.js';
 
 audioPlayer.init();
+beatPulse.init();
 
 // Подсветка всех колец следует за реальным состоянием плеера, даже если старое play() завершилось позднее
 const syncPlayerVisuals = () => {
@@ -29,6 +31,7 @@ audioPlayer.onPlaybackStateChange?.(syncPlayerVisuals);
 
 // Любое кольцо: свой трек играет — пауза, иначе включаем этот трек
 const handlePlayTrack = (index) => {
+    beatPulse.wake(); // пульсация в такт: звук через Web Audio разрешён только в жесте пользователя
     const isCurrent = audioPlayer.getCurrentIndex() === index;
     if (isCurrent && (!audioPlayer.isPaused() || audioPlayer.getPlaybackStatus?.() === 'loading')) {
         audioPlayer.pause();
@@ -47,6 +50,7 @@ uiController.bindRingClicks(handlePlayTrack);
 
 // Зойч — общий старт/стоп текущего трека
 uiController.bindZoichClick(() => {
+    beatPulse.wake();
     if (audioPlayer.isPaused() && audioPlayer.getPlaybackStatus?.() !== 'loading') {
         audioPlayer.play().then(syncPlayerVisuals).catch(err => {
             syncPlayerVisuals();
