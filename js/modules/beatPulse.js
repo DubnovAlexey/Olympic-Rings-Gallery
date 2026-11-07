@@ -1,5 +1,7 @@
 // ФАЙЛ: js/modules/beatPulse.js
-// НАЗНАЧЕНИЕ: пульсация в такт музыке. Web Audio слушает басы играющего трека и пишет в <body> две CSS-переменные:
+// НАЗНАЧЕНИЕ: пульсация в такт музыке. Web Audio слушает басы играющего трека и пишет две CSS-переменные
+// только тем элементам, которые пульсируют (Зойч, играющие кольца, огненная рамка), — не всей странице:
+// изменение переменной у <body> заставляло браузер каждый кадр пересчитывать стили всей страницы, отсюда подвисания.
 //   --beat  — короткий толчок на сильной доле (1 → плавно к 0), им пульсируют Зойч и играющее кольцо;
 //   --level — сглаженная громкость басов (0…1), от неё разгорается свечение.
 // РАЗДЕЛЫ: 1 подключение анализатора; 2 поиск сильной доли; 3 жизненный цикл.
@@ -11,7 +13,7 @@ const audio = document.getElementById('my-audio');
 const body = document.body;
 const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let context = null, analyser = null, samples = null, frame = 0, failed = false;
-let average = 0, beat = 0, level = 0, lastBeat = 0, lastSound = 0;
+let average = 0, beat = 0, target = 0, level = 0, lastBeat = 0, lastSound = 0;
 
 function connect() {
     if (context || failed || !audio) return;
@@ -48,25 +50,41 @@ function tick(now) {
     // Слышим музыку — пульсируем в такт; полторы секунды тишины (беззвучно, тихое вступление) —
     // возвращаем прежнюю пульсацию по таймеру, чтобы Зойч не замирал
     if (energy > 1e-4) lastSound = now;
-    body.classList.toggle('beat-sync', now - lastSound < 1500);
+    const live = now - lastSound < 1500;
+    if (live !== body.classList.contains('beat-sync')) body.classList.toggle('beat-sync', live); // только при смене
     average += (energy - average) * 0.05;
     level += (Math.min(1, Math.sqrt(energy) * 4) - level) * 0.25;
     if (energy > average * 1.5 && energy > 2e-4 && now - lastBeat > 230) {
-        beat = 1;
+        target = 1;
         lastBeat = now;
-    } else {
-        beat *= 0.86;            // толчок затухает за пару десятых секунды
     }
-    body.style.setProperty('--beat', beat.toFixed(3));
-    body.style.setProperty('--level', level.toFixed(3));
+    // Мягкий толчок: быстро нарастает и плавно спадает — без резких скачков, которые выглядят как дрожь
+    beat += (target - beat) * 0.35;
+    target *= 0.82;
+    paint(beat.toFixed(3), level.toFixed(3));
     frame = requestAnimationFrame(tick);
+}
+
+// Пишем значения только пульсирующим элементам; тем, кто перестал пульсировать, убираем их
+let painted = new Set();
+function paint(beatValue, levelValue) {
+    const now = new Set(document.querySelectorAll('.zoich.playing, .ring.lava-active, .flying-ring.lava-active, .magma-frame'));
+    for (const element of painted) {
+        if (!now.has(element)) { element.style.removeProperty('--beat'); element.style.removeProperty('--level'); }
+    }
+    for (const element of now) {
+        element.style.setProperty('--beat', beatValue);
+        element.style.setProperty('--level', levelValue);
+    }
+    painted = now;
 }
 
 function relax() {
     beat = 0;
+    target = 0;
     body.classList.remove('beat-sync');
-    body.style.setProperty('--beat', '0');
-    body.style.setProperty('--level', '0');
+    for (const element of painted) { element.style.removeProperty('--beat'); element.style.removeProperty('--level'); }
+    painted = new Set();
 }
 // END SECTION 2
 

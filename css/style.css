@@ -56,19 +56,23 @@ body {
 /* Play of light, as on the original page: a big gradient from a light edge through bright green and white to
    deep blue slides across the screen and back. Same colours and timing as before (9 s, calmer 25 s with music). */
 .sky-wave {
+    /* The gradient is drawn once on a layer four screens wide and simply slides (transform),
+       instead of being repainted every frame — the same picture, almost no work for the browser. */
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: -150%;
+    width: 400%;
+    height: 400%;
     background: linear-gradient(-45deg, #f4faf3, #32d315, #f3f7fa, #04229a);
-    background-size: 400% 400%;
     animation: gentle-wave 9s ease infinite;
+    will-change: transform;
 }
 
 body.lava-music-active .sky-wave { animation-duration: 25s; }
 
 @keyframes gentle-wave {
-    0% { background-position: 0 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0 50%; }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-75%, 0, 0); }
 }
 
 /* Slow aurora: two huge blurred colour clouds drifting */
@@ -306,6 +310,7 @@ body.lava-music-active .sky-glow {
     height: var(--size);
     pointer-events: auto;
     transition: box-shadow .6s ease;
+    will-change: transform;            /* each ring moves on its own layer — the page is not repainted */
 }
 
 /* Under the mouse a ring stops (backgroundRings.js) and its picture grows a little — easy to hit.
@@ -346,11 +351,23 @@ body.lava-music-active .sky-glow {
     box-shadow: 0 0 25px rgba(255, 69, 0, .6), 0 0 50px rgba(255, 140, 0, .25);
 }
 
-/* Playing ring: coloured lava glow outside, a hot inner reflection and extra brightness */
-.ring.lava-active,
-.flying-ring.lava-active {
+/* Playing ring: coloured lava glow outside and a hot inner reflection. The glow is drawn once on a
+   pseudo-element; the music only changes its opacity, which costs the browser almost nothing. */
+.ring::before,
+.flying-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
     box-shadow: 0 0 35px var(--lava-1), 0 0 70px var(--lava-2), inset 0 0 20px var(--lava-1);
+    opacity: 0;
+    transition: opacity .6s ease;
+    will-change: opacity;
 }
+
+.ring.lava-active::before,
+.flying-ring.lava-active::before { opacity: 1; }
 
 .ring.lava-active {
     z-index: 10;
@@ -374,46 +391,36 @@ body.lava-music-active .sky-glow {
     to { scale: 1.12; }
 }
 
-/* Magma frame: the edges of the screen glow red-orange while music plays */
-body::after {
-    content: "";
+/* Magma frame: the edges of the screen glow red-orange while music plays. The strongest glow is drawn once;
+   it breathes by changing opacity only. */
+.magma-frame {
     position: fixed;
     inset: 0;
     z-index: 4;
     pointer-events: none;
+    box-shadow: inset 0 0 25px rgba(255, 26, 0, .85), inset 0 0 35px rgba(255, 170, 0, .5);
     opacity: 0;
     transition: opacity .8s ease;
+    will-change: opacity;
 }
 
-body.lava-music-active::after {
-    opacity: 1;
-    animation: body-magma-frame 1.5s infinite alternate ease-in-out;
+body.lava-music-active .magma-frame { opacity: 1; animation: magma-breathe 1.5s infinite alternate ease-in-out; }
+
+@keyframes magma-breathe {
+    from { opacity: .55; }
+    to { opacity: 1; }
 }
 
-@keyframes body-magma-frame {
-    from { box-shadow: inset 0 0 15px rgba(255, 42, 0, .6), inset 0 0 25px rgba(255, 106, 0, .3); }
-    to { box-shadow: inset 0 0 25px rgba(255, 26, 0, .85), inset 0 0 35px rgba(255, 170, 0, .5); }
-}
-
-/* In time with the music (js/modules/beatPulse.js): the timer pulses above keep running, and every strong beat
-   adds a kick on top — Zoich and the playing emblem ring grow for a moment, the glow flares with the bass. */
-body { --beat: 0; --level: 0; }
-
-body.beat-sync .zoich.playing { scale: calc(1 + var(--beat) * .12); }
-body.beat-sync .ring.lava-active { scale: calc(1 + var(--beat) * .08); }
-
-body.beat-sync .ring.lava-active,
-body.beat-sync .flying-ring.lava-active {
-    box-shadow: 0 0 calc(35px + var(--beat) * 30px) var(--lava-1),
-                0 0 calc(70px + var(--level) * 50px) var(--lava-2),
-                inset 0 0 calc(20px + var(--beat) * 14px) var(--lava-1);
-}
-
-body.beat-sync.lava-music-active::after {
-    animation: none;
-    box-shadow: inset 0 0 calc(18px + var(--level) * 25px) rgba(255, 42, 0, calc(.6 + var(--beat) * .3)),
-                inset 0 0 calc(28px + var(--level) * 25px) rgba(255, 140, 0, calc(.35 + var(--level) * .3));
-}
+/* In time with the music (js/modules/beatPulse.js): the timer pulses keep running, and each strong beat adds
+   a soft kick — Zoich and the playing emblem ring grow a little, the glows and the magma frame flare.
+   --beat and --level are written only to these elements, never to the whole page. */
+/* defaults; js/modules/beatPulse.js writes the live values inline on these elements */
+.zoich, .ring, .flying-ring, .magma-frame { --beat: 0; --level: 0; }
+body.beat-sync .zoich.playing { scale: calc(1 + var(--beat) * .08); }
+body.beat-sync .ring.lava-active { scale: calc(1 + var(--beat) * .05); }
+body.beat-sync .ring.lava-active::before,
+body.beat-sync .flying-ring.lava-active::before { opacity: calc(.75 + var(--level) * .25 + var(--beat) * .25); }
+body.beat-sync.lava-music-active .magma-frame { animation: none; opacity: calc(.55 + var(--level) * .3 + var(--beat) * .3); }
 /* END SECTION 8 */
 
 /* BEGIN SECTION 9 — focus: a round glow instead of the browser's square frame */
@@ -446,7 +453,7 @@ body.beat-sync.lava-music-active::after {
     .sky-aurora, .sky-aurora::after, .sky-beams, .sky-wave, .ring.lava-active,
     .flying-ring.lava-active .ring-art, .flying-ring.lava-active .ring-ticker, .zoich.loading,
     body.lava-music-active .sky-glow, .zoich.playing { animation: none; }
-    body.lava-music-active::after { animation: none; box-shadow: inset 0 0 20px rgba(255, 42, 0, .7); }
+    body.lava-music-active .magma-frame { animation: none; opacity: .8; }
     .ring:hover, .zoich-wrapper:hover .zoich { transform: none; }
 }
 /* END SECTION 11 */
