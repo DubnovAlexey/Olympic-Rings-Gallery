@@ -1,6 +1,8 @@
+<!--suppress MarkdownUnresolvedFileReference -->
+
 # Olympic Rings Gallery
 
-[English](#english) · [Русский](#русский) · [עברית](#עברית)
+[English](#english) · [Русский](#русский) · [עברית](#עברית) · [Español](#spanish) · [Français](#french)
 
 <a name="english"></a>
 
@@ -220,3 +222,153 @@ HTML5 · CSS3 · JavaScript (ES modules) · GitHub Pages
 - יכולות: בחירת רצועה מקומית ותגובה של הטבעות לשמע לאחר מדידה; לשמור את רשימת ההשמעה הקיימת.
 
 </div>
+
+---
+
+<a name="spanish"></a>
+
+## Español
+
+Una página artística en la que cada anillo toca su propia pista. Por la pantalla fluye un juego de luz, de un borde claro a uno azul oscuro y de vuelta, que da profundidad al espacio; en el centro está el emblema olímpico y alrededor flotan quince anillos. Cada anillo está dibujado en SVG: un aro que va de claro a oscuro y un reflejo estrecho, así que parece tener volumen y el borde sigue nítido.
+
+**Demo:** https://dubnovalexey.github.io/Olympic-Rings-Gallery/
+
+### Recorrido rápido
+
+Pulse cualquier anillo y sonará su pista; otra pulsación la pausa; Zoich enciende y apaga la música. El anillo volador que queda bajo el ratón se detiene y crece un poco para que sea fácil acertarle. Al navegar con Tab, el foco se muestra con un brillo circular; Enter y espacio inician y detienen la pista.
+
+Siga `js/main.js` hasta `ringArt.js`, `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` y `beat.js` en `js/modules/`. Son módulos ES del navegador: la carpeta debe servirse por HTTP. El sonido se activa según las reglas de gesto del navegador.
+
+Los enlaces de idioma de arriba cambian la documentación; no traducen la interfaz de la demo.
+
+### Cómo está hecho
+
+- Las pistas 1–5 son el emblema olímpico (`js/modules/uiController.js`); los anillos conservan su entrelazado real.
+- Las pistas 6–20 son quince anillos que flotan por la pantalla en un mismo plano (`js/modules/backgroundRings.js`): dos de cada color olímpico, además de oro, plata, bronce, hielo y fuego. Rebotan en los bordes, entre sí como bolas de billar y en el centro con Zoich y el emblema, así que nada tapa el emblema; el movimiento se calcula por tiempo, se escribe solo en `transform` y se detiene en una pestaña oculta.
+- Mientras suena la música, Zoich, el anillo que suena y los bordes de la pantalla (brillan como magma) respiran con un mismo pulso profundo y regular: se hinchan y se deshinchan despacio, en sinusoide, y el fuego a su alrededor se aviva en cada subida. Un anillo que se enciende más tarde entra en el mismo compás desde el comienzo de la ola siguiente; cuando la música se detiene, todo baja y se apaga con suavidad, sin cortes (`js/modules/beat.js`).
+- Los anillos de un solo color tienen su propio alfabeto «irreal»: cada 30–40 segundos sus signos aparecen por todo el aro, dan una vuelta y se apagan uno a uno. Los signos son grandes, blancos y con contorno oscuro, legibles sobre un anillo de cualquier color. Los anillos del emblema son los más grandes en cualquier pantalla.
+- `js/modules/ringArt.js` dibuja todos los anillos; `js/modules/audioPlayer.js` y `js/modules/playlist.js` se encargan de la reproducción y de la lista de pistas; `js/main.js` lo une todo. Con «reducir movimiento», el cielo y los anillos se quedan quietos.
+
+Control con teclado: Tab elige un anillo o la mascota, Enter y espacio inician o detienen la pista. El estado de los anillos está disponible para los lectores de pantalla.
+
+### Música
+
+La lista suena en orden con los **20 archivos de audio locales** y, tras el último, vuelve al principio. Cada pista tiene su anillo: en el emblema, las pistas 1–5; los anillos voladores, 6–20.
+
+Todas las pistas y sus anillos (los títulos se toman de las etiquetas y nombres de los propios archivos; los que faltan se añadirán):
+
+| N.º | Anillo | Pista |
+|---|---|---|
+| 1 | Emblema · azul | Röyksopp & Robyn — "Monument" |
+| 2 | Emblema · negro | Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix) |
+| 3 | Emblema · amarillo | Patrick Swayze — "She's Like the Wind" |
+| 4 | Emblema · rojo | Stan Kolev — "Here in the Now" |
+| 5 | Emblema · verde | Chris Everett — "Cuba" (Chill Lounge version) |
+| 6 | Volador · azul | Bleu Soleil, Luiza — "Soleil Bleu" |
+| 7 | Volador · negro | Bob Moses, ZHU — "Desire" (Vintage Culture & Kiko Franco remix) |
+| 8 | Volador · rojo | *título por confirmar* |
+| 9 | Volador · amarillo | CamelPhat & Elderbrook — "Cola" (ZHU Remix) |
+| 10 | Volador · verde | *título por confirmar* |
+| 11 | Volador · azul | Pendulum — "Hold Your Colour" |
+| 12 | Volador · negro | *título por confirmar* |
+| 13 | Volador · rojo | Billy Idol — "Eyes Without a Face" |
+| 14 | Volador · amarillo | Radiohead — "Everything in Its Right Place" |
+| 15 | Volador · verde | Chris Rea — "The Blue Cafe" |
+| 16 | Oro | Cigarettes After Sex — "Nothing’s Gonna Hurt You Baby" |
+| 17 | Plata | Moby — "I Like It" |
+| 18 | Bronce | 7Б — "Молодые ветра" |
+| 19 | Hielo | Chris Rea — "I Just Wanna Be with You" |
+| 20 | Fuego | Leonard Cohen — "I'm Your Man" |
+
+La música pertenece a sus autores y solo se usa en este proyecto educativo sin fines comerciales. Si usted es titular de los derechos y quiere que se retire una pista, abra un issue y la quitaré.
+
+### Tecnologías
+
+HTML5 · animaciones CSS3 · módulos de JavaScript (ES modules) · `<audio>` · GitHub Pages
+
+### Cómo ejecutarlo
+
+La página usa módulos ES, así que ábrala mediante un servidor local (por ejemplo, `npx serve .`).
+
+### Plan de desarrollo
+
+Son propuestas, no funciones ya implementadas.
+
+- Visual: el brillo del anillo que suena al ritmo de la música, tras medir el rendimiento.
+- Ingeniería: pruebas permanentes del reproductor y de los choques entre anillos.
+- Funciones: elegir opcionalmente una pista local y que los anillos reaccionen al sonido, tras las mediciones; conservar la lista actual.
+
+---
+
+<a name="french"></a>
+
+## Français
+
+Une page artistique où chaque anneau joue son propre morceau. Un jeu de lumière coule sur l'écran, d'un bord clair à un bleu profond et retour, et donne sa profondeur à l'espace ; au centre se trouve l'emblème olympique, et quinze anneaux flottent autour. Chaque anneau est dessiné en SVG : une jante du clair au sombre et un reflet étroit, si bien qu'il paraît en volume tout en gardant un bord net.
+
+**Démo :** https://dubnovalexey.github.io/Olympic-Rings-Gallery/
+
+### Visite rapide
+
+Touchez n'importe quel anneau : son morceau démarre, une nouvelle pression le met en pause ; Zoich allume et coupe la musique. L'anneau volant sous la souris s'arrête et grossit un peu pour qu'on l'atteigne facilement. Avec la navigation au Tab, le focus apparaît comme une lueur ronde ; Entrée et espace lancent et arrêtent le morceau.
+
+Suivez `js/main.js` jusqu'à `ringArt.js`, `backgroundRings.js`, `audioPlayer.js`, `playlist.js`, `uiController.js` et `beat.js` dans `js/modules/`. Ce sont des modules ES du navigateur : le dossier doit être servi en HTTP. Le son s'active selon les règles de geste du navigateur.
+
+Les liens de langue ci-dessus changent la documentation ; ils ne traduisent pas l'interface de la démo.
+
+### Comment c'est fait
+
+- Les morceaux 1 à 5 forment l'emblème olympique (`js/modules/uiController.js`) ; les anneaux gardent leur véritable entrelacement.
+- Les morceaux 6 à 20 sont quinze anneaux qui flottent sur l'écran dans un même plan (`js/modules/backgroundRings.js`) : deux de chaque couleur olympique, plus l'or, l'argent, le bronze, la glace et le feu. Ils rebondissent sur les bords, entre eux comme des boules de billard et sur le centre avec Zoich et l'emblème, si bien que rien ne cache l'emblème ; le mouvement est calculé selon le temps, n'écrit que dans `transform` et s'arrête dans un onglet masqué.
+- Pendant la musique, Zoich, l'anneau qui joue et les bords de l'écran (ils luisent comme du magma) respirent d'une même pulsation profonde et régulière : ils gonflent et retombent lentement, en sinusoïde, et le feu autour d'eux s'avive à chaque montée. Un anneau allumé plus tard rejoint la même mesure au début de la vague suivante ; quand la musique s'arrête, tout redescend et s'éteint en douceur, sans coupure (`js/modules/beat.js`).
+- Les anneaux unis ont leur propre alphabet « irréel » : toutes les 30 à 40 secondes, ses signes s'inscrivent sur toute la jante, font un tour et s'éteignent un à un. Les signes sont grands, blancs, cernés de sombre, lisibles sur un anneau de n'importe quelle couleur. Les anneaux de l'emblème restent les plus grands sur tous les écrans.
+- `js/modules/ringArt.js` dessine tous les anneaux ; `js/modules/audioPlayer.js` et `js/modules/playlist.js` gèrent la lecture et la liste des morceaux ; `js/main.js` relie le tout. Avec « réduire les animations », le ciel et les anneaux restent immobiles.
+
+Contrôle au clavier : Tab choisit un anneau ou la mascotte, Entrée et espace lancent ou arrêtent le morceau. L'état des anneaux est accessible aux lecteurs d'écran.
+
+### Musique
+
+La liste joue dans l'ordre les **20 fichiers audio locaux** et, après le dernier, revient au début. Chaque morceau a son anneau : les morceaux 1 à 5 dans l'emblème, les anneaux volants de 6 à 20.
+
+Tous les morceaux et leurs anneaux (les titres viennent des balises et des noms des fichiers eux-mêmes ; ceux qui manquent seront ajoutés) :
+
+| No | Anneau | Morceau |
+|---|---|---|
+| 1 | Emblème · bleu | Röyksopp & Robyn — "Monument" |
+| 2 | Emblème · noir | Ninetyfour. & Johanson — "Moonlit Plains" (Third Person Remix) |
+| 3 | Emblème · jaune | Patrick Swayze — "She's Like the Wind" |
+| 4 | Emblème · rouge | Stan Kolev — "Here in the Now" |
+| 5 | Emblème · vert | Chris Everett — "Cuba" (Chill Lounge version) |
+| 6 | Volant · bleu | Bleu Soleil, Luiza — "Soleil Bleu" |
+| 7 | Volant · noir | Bob Moses, ZHU — "Desire" (Vintage Culture & Kiko Franco remix) |
+| 8 | Volant · rouge | *titre à préciser* |
+| 9 | Volant · jaune | CamelPhat & Elderbrook — "Cola" (ZHU Remix) |
+| 10 | Volant · vert | *titre à préciser* |
+| 11 | Volant · bleu | Pendulum — "Hold Your Colour" |
+| 12 | Volant · noir | *titre à préciser* |
+| 13 | Volant · rouge | Billy Idol — "Eyes Without a Face" |
+| 14 | Volant · jaune | Radiohead — "Everything in Its Right Place" |
+| 15 | Volant · vert | Chris Rea — "The Blue Cafe" |
+| 16 | Or | Cigarettes After Sex — "Nothing’s Gonna Hurt You Baby" |
+| 17 | Argent | Moby — "I Like It" |
+| 18 | Bronze | 7Б — "Молодые ветра" |
+| 19 | Glace | Chris Rea — "I Just Wanna Be with You" |
+| 20 | Feu | Leonard Cohen — "I'm Your Man" |
+
+La musique appartient à ses auteurs et n'est utilisée que dans ce projet d'étude non commercial. Si vous êtes titulaire des droits et souhaitez qu'une piste soit retirée, ouvrez une issue : je la retirerai.
+
+### Technologies
+
+HTML5 · animations CSS3 · modules JavaScript (ES modules) · `<audio>` · GitHub Pages
+
+### Lancer le projet
+
+La page utilise des modules ES : ouvrez-la donc via un serveur local (par exemple `npx serve .`).
+
+### Pistes d'évolution
+
+Ce sont des propositions, pas des fonctions déjà réalisées.
+
+- Visuel : la lueur de l'anneau qui joue au rythme de la musique, après des mesures de performance.
+- Ingénierie : des tests permanents du lecteur et des collisions entre anneaux.
+- Fonctions : choix facultatif d'un morceau local et réaction des anneaux au son, après mesures ; garder la liste actuelle.
